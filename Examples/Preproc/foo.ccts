@@ -1,0 +1,52 @@
+using <oop>;
+
+$C{
+	#include <math.h>
+}
+
+
+
+class Foo{
+	@private i32 var1;
+	@private i32 var2;
+	@private i32 var3;
+	
+	$$constr() {	//This will generate a constructor header
+		this.var1 = 0o1772;		//Octo value	
+		this.var2 = 0xFF8A;		//Hex value	
+		this.var3 = 0b0110;		//Binary value
+	}
+	
+	/* The result:
+	*	Foo* _$constr(Foo* this){
+	*		var1 = 0;
+	*		var2 = 10;		
+	*	
+	*		return this;
+	*	}
+	*/
+	
+	@public i32 get_var1(Foo* this) { return var1; }
+		//These two are equivalent in code
+	@public $$getter(var2);
+	
+	@public $$getset(var3);
+	
+	/* Will expand to
+	*	@public i32 get_var3(Foo* this) { return var3; }
+	*	@public void set_var3(Foo* this, i32 val) {this.var3 = val; }
+	*/
+	
+	void bar(Foo* this){
+		this.var1 += this.var2;
+	}
+	
+
+
+	f32 sqrt(f32 val){
+		$C{
+			return math.sqrt(val);
+		}
+	}
+}
+

@@ -1,0 +1,54 @@
+{
+  "Version": 1,
+  "WorkspaceRootPath": "C:\\BME\\sem6\\\u00F6nlab\\Examples\\Models\\ModelDemo\\",
+  "Documents": [
+    {
+      "AbsoluteMoniker": "D:0:0:{F6D857A2-786F-415C-BA7B-025B7B9EF8A8}|ModelDemo\\ModelDemo.csproj|c:\\bme\\sem6\\\u00F6nlab\\examples\\models\\modeldemo\\modeldemo\\model.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{F6D857A2-786F-415C-BA7B-025B7B9EF8A8}|ModelDemo\\ModelDemo.csproj|solutionrelative:modeldemo\\model.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{F6D857A2-786F-415C-BA7B-025B7B9EF8A8}|ModelDemo\\ModelDemo.csproj|c:\\bme\\sem6\\\u00F6nlab\\examples\\models\\modeldemo\\modeldemo\\program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{F6D857A2-786F-415C-BA7B-025B7B9EF8A8}|ModelDemo\\ModelDemo.csproj|solutionrelative:modeldemo\\program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    }
+  ],
+  "DocumentGroupContainers": [
+    {
+      "Orientation": 0,
+      "VerticalTabListWidth": 256,
+      "DocumentGroups": [
+        {
+          "DockedWidth": 188,
+          "SelectedChildIndex": 0,
+          "Children": [
+            {
+              "$type": "Document",
+              "DocumentIndex": 0,
+              "Title": "Model.cs",
+              "DocumentMoniker": "C:\\BME\\sem6\\\u00F6nlab\\Examples\\Models\\ModelDemo\\ModelDemo\\Model.cs",
+              "RelativeDocumentMoniker": "ModelDemo\\Model.cs",
+              "ToolTip": "C:\\BME\\sem6\\\u00F6nlab\\Examples\\Models\\ModelDemo\\ModelDemo\\Model.cs",
+              "RelativeToolTip": "ModelDemo\\Model.cs",
+              "ViewState": "AQIAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-02-16T21:43:58.15Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 1,
+              "Title": "Program.cs",
+              "DocumentMoniker": "C:\\BME\\sem6\\\u00F6nlab\\Examples\\Models\\ModelDemo\\ModelDemo\\Program.cs",
+              "RelativeDocumentMoniker": "ModelDemo\\Program.cs",
+              "ToolTip": "C:\\BME\\sem6\\\u00F6nlab\\Examples\\Models\\ModelDemo\\ModelDemo\\Program.cs",
+              "RelativeToolTip": "ModelDemo\\Program.cs",
+              "ViewState": "AQIAAAAAAAAAAAAAAAAAAAAAAAABAAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-02-16T21:43:05.511Z",
+              "EditorCaption": ""
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

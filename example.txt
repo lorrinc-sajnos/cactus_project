@@ -1,0 +1,37 @@
+tag readonly{
+	Status on_write(Variable variable, Code code){
+		return new Error(1234, ”Variable {variable.name} is readonly, cannot be overwritten!”);
+	}
+	
+	...
+}
+
+i32 foo(readonly i32 a){
+	return a * 2;
+}
+
+i32 foo2(readonly i32 a, i32 b){
+	a = 14 * b;					//<-------------- HIBA: "Variable a is readonly, cannot be overwritten!”
+	//lista[3];
+	return a * b;
+}
+
+
+
+
+
+
+struct LinkedList{
+	...
+}
+
+i32 get_element(LinkedList* ls, i32 idx){
+	...
+}
+
+$macro
+$filter:
+	_ls=[LinkedList*] '[' _idx=[i32] ']'		//lista[3] -> get_element(3)
+$replace:
+	get_element(_ls, _idx)
+$endmacro

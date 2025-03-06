@@ -1,0 +1,18 @@
+include "foo";
+using "util_ppc";
+include <str>;
+
+
+
+
+$!auto_doc();		//After the first build, will be replaced in the *Source Code*
+void main(){
+	i64 key1 = $rand_prime();			//Pre-processor function: will replace with a calculated value
+	i64 key2 = $const_rand_prime(1234);		//Will be the same across builds
+	
+	Foo* foo1 = new Foo();
+	
+	$$gen_obf_code();		//Generates useless code to make de-obf. harder	
+	
+	str* code = 
+}

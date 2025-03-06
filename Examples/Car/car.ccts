@@ -1,0 +1,62 @@
+include <cstd>;
+include <cstd/io>;
+include <cstd/str>;
+
+//Comment
+
+struct Car {
+	str plate_num;					//String
+	f32 max_speed;					//32-bit Float
+	i32 passenger_count;			//32-bit integer
+	
+	Car* init(Car* this, str plate, f32 max_spd, i32 passenger_cnt){
+		Car* ptr = malloc Car*;		//Manually create a dynamic pointer 
+		ptr.plate_num = plate;
+		ptr.max_speed = max_spd;
+		ptr.passenger_count = passenger_cnt;
+		return ptr;
+	}
+	
+	void start_car(Car* this){		
+		print(this:plate_num);		
+		print_ln(" has started!");
+	}
+}
+
+void service(Car* this){
+	print("Servicing");
+	print_ln(this.plate_num);
+}
+
+//Function overloading
+void service(Car* this, f32 price){
+	print_ln("Servicing" + this.plate_num + " for " + price + "$");
+}
+
+
+void main(){
+	Car suzuki;	
+	//Access using ":"
+	suzuki:plate_num = "AAKL-754";
+	suzuki:max_speed = 130.0;	//constant
+	suzuki:passenger_count = 5;
+	
+	Car* s_ptr = &suzuki;	//Get pointer
+	
+	//Writing pointer like this: "Car *ptr " is not allowed
+	
+	s_ptr.max_spd = 120.0;	//If pointer, refference using "."
+	Car.start_car(s_ptr);	//Call function of struct	
+	
+	//If function's first parameter is a pointer called "this", can replace like this	
+	
+	
+	Car* volvo = volvo.init("KJL-728", 200.0f, 5);
+	
+	volvo.start_car();		
+	
+	volvo.service();	//Can replace even if not declared in body
+	volvo.service(200.0);	
+	
+	free volvo;			//Manually free a dynamic pointer	
+}
