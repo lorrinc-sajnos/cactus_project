@@ -10,7 +10,7 @@ struct Car {
 	i32 passenger_count;			//32-bit integer
 	
 	Car* init(Car* this, str plate, f32 max_spd, i32 passenger_cnt){
-		Car* ptr = malloc Car*;		//Manually create a dynamic pointer 
+		Car* ptr = alloc Car*;		//Manually create a dynamic pointer 
 		ptr.plate_num = plate;
 		ptr.max_speed = max_spd;
 		ptr.passenger_count = passenger_cnt;

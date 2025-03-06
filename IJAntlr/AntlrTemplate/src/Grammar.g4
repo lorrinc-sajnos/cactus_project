@@ -1,44 +1,72 @@
 grammar Grammar;
 
-//Parser Rules
-tags: TAG+;
 
 codefile: (globStatement)* EOF;
 
+//Parser Rules
+tags: TAG+;
+
 globStatement
     : preprocessor_stm
-	| func_dcl
+	| tags EOS
 	| field_dcl EOS
+	| func_dcl
 	| struct_dcl
-	| tags
+	| class_dcl
 	;
 
-preprocessor_stm: ppc_include EOS;
+preprocessor_stm: ppc__Include EOS;
 
 
 filepath: OP_LST ID (OP_DIV ID)* OP_GRT;
-ppc_include: KYW_INCLUDE filepath; //include <file>;
+ppc__Include: KYW_INCLUDE filepath; //include <file>;
 
 
 ptrLvl : OP_STAR+;
 type: ID ptrLvl?;
 
 //Function declaration
-func_dcl: tags? returnType funcName PARN_OPN (param (COMMA param)*)? PARN_CLS codeBody;
+
+func_dcl_header: tags? returnType funcName PARN_OPN (param (COMMA param)*)? PARN_CLS;
+
+func_dcl: func_dcl_header(
+        codeBody
+        | func_lamd_body EOS
+        | ppc__C_Code_Body
+        | ppc__C_Func_Map EOS
+    );
+
+func_lamd_body: OP_LAMDA expression;
 
 returnType: type;
 param: type ID;
 funcName: ID;
+varName: ID;
 
 //Field/Global variable declaration
-field_dcl: tags? type ID (COMMA ID)*;
+field_dcl: tags? type varName (COMMA ID)*;
 
 //Struct declaration
+struct_name: ID;
 struct_dcl:
-	tags? KYW_STRUCT ID BODY_OPN //
+	tags? KYW_STRUCT struct_name BODY_OPN //
 	struct_body//
 	BODY_CLS;
 struct_body: (func_dcl | (field_dcl EOS))*;
+
+//Class declaration
+
+//Struct declaration
+class_name: ID;
+class_dcl:
+	tags? KYW_CLASS class_name (OP_ACC parent_class)? (KYW_IMPLEMENTS interfaces)? BODY_OPN //
+	class_body//
+	BODY_CLS;
+parent_class: ID;
+interface: ID;
+interfaces: interface (COMMA interface)*;
+
+class_body: (func_dcl | (field_dcl EOS))*;
 
 //Code
 codeBody: BODY_OPN (statement)* BODY_CLS;
@@ -55,7 +83,7 @@ statement
     | tags
     ;
 
-varDcl: type ID (OP_ASG expression)?;
+varDcl: type varName (OP_ASG expression)?;
 
 
 expression
@@ -64,6 +92,7 @@ expression
         | expression op_AddLvl expression
         | expression op_BitLvl expression
         | expression op_CompLvl expression
+
     ;
 
 //Operators
@@ -79,7 +108,7 @@ op_AddLvl
     ;
 
 op_BitLvl
-    : OP_B_AND
+    : OP_AND
     | OP_B_OR
     | OP_B_XOR
     | OP_LSH
@@ -89,14 +118,20 @@ op_BitLvl
 op_CompLvl
     : OP_EQL
     | OP_NEQ
-    | OP_B_AND
+    | OP_AND
     | OP_B_OR
+    | OP_LST
+    | OP_GRT
+    | OP_GREQ
+    | OP_LSEQ
     ;
 
 primaryExp
     : primaryExpVal op_rUn?
     | op_lUn primaryExpVal
     | miscPrimeExp
+
+    //| ppc__Expression
     ;
 
 op_lUn
@@ -105,7 +140,7 @@ op_lUn
     | LUNOP_B_NOT
     | LUNOP_L_NOT
     | LUNOP_SIZEOF
-    | LUNOP_ADDR
+    | OP_AND
     ;
 
 op_rUn:
@@ -127,7 +162,7 @@ miscPrimeExp //Miscellanious primary expressions
     | free
     ;
 
-alloc: KYW_ALLOC (expression| type);
+alloc: KYW_ALLOC (expression | type);
 free: KYW_FREE varRef;
 
 assignment: varRef OP_ASG expression;
@@ -177,11 +212,39 @@ returnStatement: KYW_RETURN expression;
 continueStatement: KYW_CONTINUE;
 breakStatement: KYW_BREAK;
 
-forLoop: KYW_FOR PARN_OPN type ID EOS expression EOS expression PARN_CLS codeBody;
-whileLoop: KYW_WHILE PARN_OPN expression PARN_CLS codeBody;
+//FOR loop
+loopDecl : varDcl;
+loopCond : expression;
+endExp: expression;
+
+forLoop: KYW_FOR PARN_OPN loopDecl EOS loopCond EOS endExp PARN_CLS codeBody;
 
 
+whileLoop: KYW_WHILE PARN_OPN loopCond PARN_CLS codeBody;
 
+//Preprocessor magic
+
+ppc__C_Code_Body: PPC_C_CODE;
+ppc__C_id: ID;
+ppc__C_Func: ppc__C_id PARN_OPN funcParamVals? PARN_CLS;
+ppc__C_Func_Map:  PPC_C_LAMDA ppc__C_Func;
+
+ppc__Token: (
+    ID
+    | OP_ACC
+    | OP_REF
+    | OP_AND
+    | OP_GRT
+    | OP_LST
+    | PARN_OPN
+    | PARN_CLS
+    | SQPN_OPN
+    | SQPN_CLS
+    | STRING
+);
+
+
+//ppc__Expression: ppc__Token{1,8};
 
 
 
@@ -194,6 +257,8 @@ whileLoop: KYW_WHILE PARN_OPN expression PARN_CLS codeBody;
 //Keywords:
 KYW_INCLUDE: 'include';
 KYW_STRUCT: 'struct';
+KYW_CLASS: 'class';
+KYW_IMPLEMENTS: 'implements';
 
 //Literal keywords
 KYW_TRUE: 'true';
@@ -217,7 +282,6 @@ UNOP_DCR: '--';
 LUNOP_L_NOT: '!';
 LUNOP_B_NOT: '~';
 LUNOP_SIZEOF: 'sizeof';
-LUNOP_ADDR: '&';
 
 
 OP_ASG: '=';
@@ -230,7 +294,7 @@ OP_REM: '%';
 OP_ADD: '+';
 OP_SUB: '-';
 
-OP_B_AND: '&';
+OP_AND: '&';
 OP_B_OR: '|';
 OP_B_XOR: '^';
 
@@ -245,6 +309,10 @@ OP_L_OR: '||';
 OP_NEQ: '!=';
 OP_LST: '<';
 OP_GRT: '>';
+OP_LSEQ: '<=';
+OP_GREQ: '>=';
+
+OP_LAMDA: '=>';
 
 //MIsc opr.
 
@@ -259,6 +327,13 @@ PARN_CLS: ')';
 SQPN_OPN: '[';
 SQPN_CLS: ']';
 
+
+//Preprocessor magic
+PPC_C_BODY_OPN: '$$C{';
+PPC_C_BODY_CLS: '}$$C';
+PPC_C_CODE: PPC_C_BODY_OPN (().)* PPC_C_BODY_CLS;
+PPC_C_PRFX: '$$C';
+PPC_C_LAMDA: PPC_C_PRFX OP_LAMDA;
 
 
 S_QT: '\'';
