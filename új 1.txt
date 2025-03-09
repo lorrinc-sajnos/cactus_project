@@ -1,5 +1,17 @@
-include <io>;
-
-i32 main(){
-	print("Hello World!");
+class Cactus : Plant implements ILiving, IDamage{
+	
+	i32 foo(i32 a) => a*3-123;
+	
+	i32 c_magic(i32 a, i32 b) $$C{
+	    Ide bármilyen C kód jöhet,
+	    Egy nagy tokent csinál belőle	
+		Nem fogja syntaxis-ellenőrizni a fordító, szóval óvatosan!		
+	}$$C
+	
+	i32 c_magic_2(i32 a, f32 b)  $$C=> some_old_c_func(a,b);
+	
+	i32 bar(i32 a, i32 b){
+	    i32 c = a + b + $c;
+	    c = c + foo(a,c) * $$bar(b,c-1);
+	}
 }

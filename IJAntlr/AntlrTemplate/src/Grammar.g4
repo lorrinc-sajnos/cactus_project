@@ -141,6 +141,7 @@ op_lUn
     | LUNOP_L_NOT
     | LUNOP_SIZEOF
     | OP_AND
+    | explicitCast
     ;
 
 op_rUn:
@@ -152,6 +153,7 @@ primaryExpVal
     : parenthsExp
     | funcCall
     | literalExp
+    | ppc__funcCall
     ;
 
 parenthsExp: PARN_OPN expression PARN_CLS;
@@ -164,6 +166,7 @@ miscPrimeExp //Miscellanious primary expressions
 
 alloc: KYW_ALLOC (expression | type);
 free: KYW_FREE varRef;
+explicitCast: PARN_OPN type PARN_CLS;
 
 assignment: varRef OP_ASG expression;
 
@@ -181,6 +184,8 @@ literalExp
     | charLiteral
     | boolLiteral
     | varRef
+
+    | ppc__varRef
     ;
 
 nullLiteral: KYW_NULL;
@@ -208,7 +213,7 @@ varRef: ID ((OP_ACC | OP_REF) ID)*;//The name of the variable can be refferenced
 ifStatement: KYW_IF PARN_OPN expression PARN_CLS codeBody elseStatement?;
 elseStatement: KYW_ELSE (ifStatement | codeBody);
 
-returnStatement: KYW_RETURN expression;
+returnStatement: KYW_RETURN expression?;
 continueStatement: KYW_CONTINUE;
 breakStatement: KYW_BREAK;
 
@@ -228,6 +233,10 @@ ppc__C_Code_Body: PPC_C_CODE;
 ppc__C_id: ID;
 ppc__C_Func: ppc__C_id PARN_OPN funcParamVals? PARN_CLS;
 ppc__C_Func_Map:  PPC_C_LAMDA ppc__C_Func;
+
+ppc__varRef: PPC_ID;
+ppc__funcRef: (PPC_ID | PPC_DEEP_ID);
+ppc__funcCall: ppc__funcRef PARN_OPN funcParamVals? PARN_CLS;
 
 ppc__Token: (
     ID
@@ -329,10 +338,13 @@ SQPN_CLS: ']';
 
 
 //Preprocessor magic
-PPC_C_BODY_OPN: '$$C{';
-PPC_C_BODY_CLS: '}$$C';
+fragment PPC_PRFX: '$';
+fragment PPC_DEEP_PRFX: '$$';
+fragment PPC_C_PRFX: PPC_DEEP_PRFX 'C';
+
+PPC_C_BODY_OPN: PPC_C_PRFX BODY_OPN;
+PPC_C_BODY_CLS: BODY_CLS PPC_C_PRFX;
 PPC_C_CODE: PPC_C_BODY_OPN (().)* PPC_C_BODY_CLS;
-PPC_C_PRFX: '$$C';
 PPC_C_LAMDA: PPC_C_PRFX OP_LAMDA;
 
 
@@ -376,11 +388,13 @@ TAG: TAG_PRFX ID;
 
 
 //ID
-ID: Id_start (Id_lower | Id_upper | Digit | Id_misc)*;
-fragment Id_start: (Id_lower | Id_upper | '_');
-fragment Id_lower: [a-z];
-fragment Id_upper: [A-Z];
-fragment Id_misc: [_-];
+ID: Id_start Id_chars*;
+fragment Id_start: ([a-z] | [A-Z] | '_');
+fragment Id_chars: Id_start | Digit;
+
+PPC_ID: PPC_PRFX ID;
+PPC_DEEP_ID: PPC_DEEP_PRFX ID;
+
 
 COMMENT: ('/*' .*? '*/') -> skip;       //Purposefully left in!
 LINE_COMMENT: ('//' .*? '\n') -> skip;
