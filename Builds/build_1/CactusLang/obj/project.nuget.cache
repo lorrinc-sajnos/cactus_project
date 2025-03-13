@@ -1,8 +1,8 @@
 {
   "version": 2,
-  "dgSpecHash": "k+WDoTBKsOnXLHu4ArXWaq+BYdeY3JY1JHF3jg1t2zAxjvmQKmvEw/5dhIUKaDgBeypPucMglLrOiWJCkkmuUQ==",
+  "dgSpecHash": "j1oog70T2kSyery6M7XgeYDWaiwHmlBekouBEaoKDk9S07pCS47EdOcC21ZwihQuLowf6llLz8lZqKeNNUlMmg==",
   "success": true,
-  "projectFilePath": "C:\\BME\\sem6\\onlab\\Builds\\build_1\\CactusLang\\CactusLang.csproj",
+  "projectFilePath": "D:\\ARCHIVE\\BME\\sem6\\onlab\\cactus_project\\Builds\\build_1\\CactusLang\\CactusLang.csproj",
   "expectedPackageFiles": [
     "C:\\Users\\Lorrinc\\.nuget\\packages\\antlr4.runtime.standard\\4.13.1\\antlr4.runtime.standard.4.13.1.nupkg.sha512"
   ],

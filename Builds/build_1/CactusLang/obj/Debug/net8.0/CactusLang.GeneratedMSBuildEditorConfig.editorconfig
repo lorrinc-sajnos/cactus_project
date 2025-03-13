@@ -8,6 +8,6 @@ build_property.PlatformNeutralAssembly =
 build_property.EnforceExtendedAnalyzerRules = 
 build_property._SupportedPlatformList = Linux,macOS,Windows
 build_property.RootNamespace = CactusLang
-build_property.ProjectDir = C:\BME\sem6\onlab\Builds\build_1\CactusLang\
+build_property.ProjectDir = D:\ARCHIVE\BME\sem6\onlab\cactus_project\Builds\build_1\CactusLang\
 build_property.EnableComHosting = 
 build_property.EnableGeneratedComInterfaceComImportInterop = 

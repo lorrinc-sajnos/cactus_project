@@ -1,17 +1,17 @@
 {
   "format": 1,
   "restore": {
-    "C:\\BME\\sem6\\onlab\\Builds\\build_1\\CactusLangTests\\CactusLangTests.csproj": {}
+    "D:\\ARCHIVE\\BME\\sem6\\onlab\\cactus_project\\Builds\\build_1\\CactusLangTests\\CactusLangTests.csproj": {}
   },
   "projects": {
-    "C:\\BME\\sem6\\onlab\\Builds\\build_1\\CactusLangTests\\CactusLangTests.csproj": {
+    "D:\\ARCHIVE\\BME\\sem6\\onlab\\cactus_project\\Builds\\build_1\\CactusLangTests\\CactusLangTests.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\BME\\sem6\\onlab\\Builds\\build_1\\CactusLangTests\\CactusLangTests.csproj",
+        "projectUniqueName": "D:\\ARCHIVE\\BME\\sem6\\onlab\\cactus_project\\Builds\\build_1\\CactusLangTests\\CactusLangTests.csproj",
         "projectName": "CactusLangTests",
-        "projectPath": "C:\\BME\\sem6\\onlab\\Builds\\build_1\\CactusLangTests\\CactusLangTests.csproj",
+        "projectPath": "D:\\ARCHIVE\\BME\\sem6\\onlab\\cactus_project\\Builds\\build_1\\CactusLangTests\\CactusLangTests.csproj",
         "packagesPath": "C:\\Users\\Lorrinc\\.nuget\\packages\\",
-        "outputPath": "C:\\BME\\sem6\\onlab\\Builds\\build_1\\CactusLangTests\\obj\\",
+        "outputPath": "D:\\ARCHIVE\\BME\\sem6\\onlab\\cactus_project\\Builds\\build_1\\CactusLangTests\\obj\\",
         "projectStyle": "PackageReference",
         "fallbackFolders": [
           "C:\\Users\\Lorrinc\\AppData\\Roaming\\Godot\\mono\\GodotNuGetFallbackFolder",
@@ -35,8 +35,8 @@
           "net8.0": {
             "targetAlias": "net8.0",
             "projectReferences": {
-              "C:\\BME\\sem6\\onlab\\Builds\\build_1\\CactusLang\\CactusLang.csproj": {
-                "projectPath": "C:\\BME\\sem6\\onlab\\Builds\\build_1\\CactusLang\\CactusLang.csproj"
+              "D:\\ARCHIVE\\BME\\sem6\\onlab\\cactus_project\\Builds\\build_1\\CactusLang\\CactusLang.csproj": {
+                "projectPath": "D:\\ARCHIVE\\BME\\sem6\\onlab\\cactus_project\\Builds\\build_1\\CactusLang\\CactusLang.csproj"
               }
             }
           }
@@ -93,14 +93,14 @@
         }
       }
     },
-    "C:\\BME\\sem6\\onlab\\Builds\\build_1\\CactusLang\\CactusLang.csproj": {
+    "D:\\ARCHIVE\\BME\\sem6\\onlab\\cactus_project\\Builds\\build_1\\CactusLang\\CactusLang.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\BME\\sem6\\onlab\\Builds\\build_1\\CactusLang\\CactusLang.csproj",
+        "projectUniqueName": "D:\\ARCHIVE\\BME\\sem6\\onlab\\cactus_project\\Builds\\build_1\\CactusLang\\CactusLang.csproj",
         "projectName": "CactusLang",
-        "projectPath": "C:\\BME\\sem6\\onlab\\Builds\\build_1\\CactusLang\\CactusLang.csproj",
+        "projectPath": "D:\\ARCHIVE\\BME\\sem6\\onlab\\cactus_project\\Builds\\build_1\\CactusLang\\CactusLang.csproj",
         "packagesPath": "C:\\Users\\Lorrinc\\.nuget\\packages\\",
-        "outputPath": "C:\\BME\\sem6\\onlab\\Builds\\build_1\\CactusLang\\obj\\",
+        "outputPath": "D:\\ARCHIVE\\BME\\sem6\\onlab\\cactus_project\\Builds\\build_1\\CactusLang\\obj\\",
         "projectStyle": "PackageReference",
         "fallbackFolders": [
           "C:\\Users\\Lorrinc\\AppData\\Roaming\\Godot\\mono\\GodotNuGetFallbackFolder",

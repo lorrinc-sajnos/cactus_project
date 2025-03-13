@@ -10,9 +10,10 @@ string input = File.ReadAllText(filePath);
 
 //Mintaprogram
 AntlrInputStream inputStream = new AntlrInputStream(input);
-CactusGrammarLexer lexer = new CactusGrammarLexer(inputStream);
+GrammarLexer lexer = new GrammarLexer(inputStream);
 CommonTokenStream tokenStream = new CommonTokenStream(lexer);
-CactusGrammarParser parser = new CactusGrammarParser(tokenStream);
+GrammarParser parser = new GrammarParser(tokenStream);
+
 
 Console.WriteLine(parser.codefile().ToStringTree());
 

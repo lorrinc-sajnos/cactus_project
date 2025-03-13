@@ -1,8 +1,8 @@
 {
   "version": 2,
-  "dgSpecHash": "3lq5iY4sYYAm6R2peiJq1x5ZW5fNaMYhRoDHQ/6w6i8duckwf7/PWZ880tKny9XxpFqoQkgAIg2GSyf9diyvIQ==",
+  "dgSpecHash": "L8oowUBt/28FSDTjePL8eU8TweWdNkoH4Rixi7pONJQpbz8osY4/aaSSE7MCHVoPN1Y3RQCCkUqWMxbIiYigoA==",
   "success": true,
-  "projectFilePath": "C:\\BME\\sem6\\onlab\\Builds\\build_1\\CactusLangTests\\CactusLangTests.csproj",
+  "projectFilePath": "D:\\ARCHIVE\\BME\\sem6\\onlab\\cactus_project\\Builds\\build_1\\CactusLangTests\\CactusLangTests.csproj",
   "expectedPackageFiles": [
     "C:\\Users\\Lorrinc\\.nuget\\packages\\antlr4.runtime.standard\\4.13.1\\antlr4.runtime.standard.4.13.1.nupkg.sha512",
     "C:\\Users\\Lorrinc\\.nuget\\packages\\coverlet.collector\\6.0.0\\coverlet.collector.6.0.0.nupkg.sha512",
