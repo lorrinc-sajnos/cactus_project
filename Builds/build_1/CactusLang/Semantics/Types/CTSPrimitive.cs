@@ -4,6 +4,8 @@ using System.Reflection.Metadata;
 namespace CactusLang.Semantics.Types;
 
 public class CTSPrimitive : CTSType {
+
+    private static readonly HashSet<CTSPrimitive> primitives = new();
     public static readonly CTSPrimitive F32 = new("f32",4);
     public static readonly CTSPrimitive F64= new("f64", 8);
     public static readonly CTSPrimitive F128= new("f128", 16);
@@ -24,10 +26,14 @@ public class CTSPrimitive : CTSType {
     public static readonly CTSPrimitive CH16 = new("ch16", 2);
     public static readonly CTSPrimitive CH32 = new("ch32", 4);
 
+    public static readonly CTSPrimitive BOOL = new ("bool", 1);
+    public static readonly CTSPrimitive VOID = new ("void", 1);
+
     private readonly HashSet<CTSPrimitive> subset;
 
     private CTSPrimitive(string id, int size) : base(id ,size) {
         subset = new();
+        primitives.Add(this);
     }
 
     private void Includes(CTSPrimitive type){
@@ -69,4 +75,6 @@ public class CTSPrimitive : CTSType {
 
         return ((CTSPrimitive)castTo).subset.Contains(this);
     }
+
+    public static HashSet<CTSPrimitive> GetPrimitives() => new(primitives);
 }

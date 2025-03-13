@@ -3,7 +3,7 @@ using System;
 namespace CactusLang.Semantics;
 
 public class ScopeManager {
-    
+
 }
 
 struct ScopeEntry{

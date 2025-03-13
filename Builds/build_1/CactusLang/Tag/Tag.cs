@@ -1,6 +1,6 @@
 using System;
 
-namespace CactusLang.Cactus;
+namespace CactusLang.Tags;
 
 //TODO!!
 public class Tag {
