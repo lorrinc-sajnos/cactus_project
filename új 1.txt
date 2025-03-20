@@ -1,5 +1,10 @@
 class Cactus : Plant implements ILiving, IDamage{
 	
+
+    @private i32 _test;
+
+    $setter(_test)
+
 	i32 foo(i32 a) => a*3-123;
 	
 	i32 c_magic(i32 a, i32 b) $$C{
