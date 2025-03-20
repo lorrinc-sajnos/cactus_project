@@ -38,6 +38,12 @@ public interface IGrammarVisitor<Result> : IParseTreeVisitor<Result> {
 	/// <return>The visitor result.</return>
 	Result VisitCodefile([NotNull] GrammarParser.CodefileContext context);
 	/// <summary>
+	/// Visit a parse tree produced by <see cref="GrammarParser.eoc"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	/// <return>The visitor result.</return>
+	Result VisitEoc([NotNull] GrammarParser.EocContext context);
+	/// <summary>
 	/// Visit a parse tree produced by <see cref="GrammarParser.tags"/>.
 	/// </summary>
 	/// <param name="context">The parse tree.</param>

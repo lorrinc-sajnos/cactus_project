@@ -13,8 +13,8 @@ public class StructType : BaseType , IContainElements {
         _functions = new();
     }
 
-    public bool AddVariable(VariableSymbol variable) => _variables.Add(variable.Name, variable);
-    public bool AddFunction(FunctionSymbol function) => _functions.Add(function.ID, function);
+    public void AddVariable(VariableSymbol variable) => _variables.Add(variable.Name, variable);
+    public void AddFunction(FunctionSymbol function) => _functions.Add(function.ID, function);
 
 
     public override int Size {

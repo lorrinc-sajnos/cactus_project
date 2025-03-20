@@ -41,6 +41,16 @@ public interface IGrammarListener : IParseTreeListener {
 	/// <param name="context">The parse tree.</param>
 	void ExitCodefile([NotNull] GrammarParser.CodefileContext context);
 	/// <summary>
+	/// Enter a parse tree produced by <see cref="GrammarParser.eoc"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	void EnterEoc([NotNull] GrammarParser.EocContext context);
+	/// <summary>
+	/// Exit a parse tree produced by <see cref="GrammarParser.eoc"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	void ExitEoc([NotNull] GrammarParser.EocContext context);
+	/// <summary>
 	/// Enter a parse tree produced by <see cref="GrammarParser.tags"/>.
 	/// </summary>
 	/// <param name="context">The parse tree.</param>

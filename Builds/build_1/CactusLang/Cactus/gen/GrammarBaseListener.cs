@@ -48,6 +48,18 @@ public partial class GrammarBaseListener : IGrammarListener {
 	/// <param name="context">The parse tree.</param>
 	public virtual void ExitCodefile([NotNull] GrammarParser.CodefileContext context) { }
 	/// <summary>
+	/// Enter a parse tree produced by <see cref="GrammarParser.eoc"/>.
+	/// <para>The default implementation does nothing.</para>
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	public virtual void EnterEoc([NotNull] GrammarParser.EocContext context) { }
+	/// <summary>
+	/// Exit a parse tree produced by <see cref="GrammarParser.eoc"/>.
+	/// <para>The default implementation does nothing.</para>
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	public virtual void ExitEoc([NotNull] GrammarParser.EocContext context) { }
+	/// <summary>
 	/// Enter a parse tree produced by <see cref="GrammarParser.tags"/>.
 	/// <para>The default implementation does nothing.</para>
 	/// </summary>

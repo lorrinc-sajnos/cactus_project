@@ -7,7 +7,9 @@ public class GlobalScope : Scope {
     
     private Scope _currentScope;
 
-    private OrderedDictionary<string,FunctionSymbol> _globFunctions;
+    private OrderedDictionary<string, FunctionSymbol> _globFunctions;
+    
+    
     
     public Scope CurrentScope => _currentScope;
     
