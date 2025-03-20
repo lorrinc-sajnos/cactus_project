@@ -26,11 +26,11 @@ public class GlobalScope : Scope {
         _currentScope = _currentScope.Parent;
     }
     
-    public FunctionSymbol GetVariable(string id) {
+    public FunctionSymbol GetFunction(string id) {
         if(_globFunctions.ContainsKey(id)) return _globFunctions[id];
         return null;
     }
-    public bool AddVariable(FunctionSymbol variable) {
+    public bool AddFunction(FunctionSymbol variable) {
         if(_globFunctions.ContainsKey(variable.ID)) return false;
         
         _globFunctions.Add(variable.ID, variable);

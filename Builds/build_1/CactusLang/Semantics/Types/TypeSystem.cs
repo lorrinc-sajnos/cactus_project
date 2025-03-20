@@ -42,26 +42,30 @@ public class TypeSystem {
             symbol = new VariableSymbol(new MissingType(typeName), name, -9999);
             _finalizables.Add(symbol);
         }
-        return symbol; 
+
+        return symbol;
     }
+
     public FunctionSymbol CreateOptmcFuncSym(string typeName, string name) {
         FunctionSymbol symbol;
         if (_types.ContainsKey(typeName)) {
-            symbol = new FunctionSymbol(name, _types[typeName]);
+            symbol = new FunctionSymbol(_types[typeName], name);
         }
         else {
-            symbol = new FunctionSymbol(name, new MissingType(typeName));
+            symbol = new FunctionSymbol(new MissingType(typeName), name);
             _finalizables.Add(symbol);
         }
-        return symbol; 
+
+        return symbol;
     }
 
     List<IFinalizable> _finalizables;
 
     public bool Finalize() {
         foreach (var finalizable in _finalizables) {
-            if(!finalizable.Finalize(this)) return false;
+            if (!finalizable.Finalize(this)) return false;
         }
+
         return true;
     }
 }

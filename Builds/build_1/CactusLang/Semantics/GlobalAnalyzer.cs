@@ -42,7 +42,7 @@ public class GlobalAnalyzer : GrammarBaseVisitor<StatusCode> {
         var funcDecls = structBody.func_dcl();
         foreach (var localFuncDecl in funcDecls) {
             _typeSystem.MissingTypeFlag = false;
-            
+
             var func = ParseFuncDeclHeader(localFuncDecl.func_dcl_header());
             newStruct.AddFunction(func);
         }
@@ -52,8 +52,19 @@ public class GlobalAnalyzer : GrammarBaseVisitor<StatusCode> {
         return result;
     }
 
-    public override StatusCode VisitFunc_dcl(GrammarParser.Func_dclContext context) {
-        return base.VisitFunc_dcl(context);
+    public override StatusCode VisitField_dcl(GP.Field_dclContext ctx) {
+        List<VariableSymbol> variables = ParseFieldDclContext(ctx);
+        foreach (var variable in variables) _globalScope.AddVariable(variable);
+
+        var result = base.VisitField_dcl(ctx);
+        return result;
+    }
+
+    public override StatusCode VisitFunc_dcl(GP.Func_dclContext ctx) {
+        FunctionSymbol func = ParseFuncDeclHeader(ctx.func_dcl_header());
+        _globalScope.AddFunction(func);
+        var result = base.VisitFunc_dcl(ctx);
+        return result;
     }
 
     List<VariableSymbol> ParseFieldDclContext(GP.Field_dclContext ctx) {

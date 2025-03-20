@@ -12,7 +12,7 @@ public class FunctionSymbol : IFinalizable {
 
     private Dictionary<string, VariableSymbol> parameters;
 
-    public FunctionSymbol(BaseType retType , string id) {
+    public FunctionSymbol(BaseType retType, string id) {
         ID = id;
         ReturnType = retType;
     }
