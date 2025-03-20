@@ -44,7 +44,7 @@ funcName: ID;
 varName: ID;
 
 //Field/Global variable declaration
-field_dcl: tags? type varName (COMMA ID)*;
+field_dcl: tags? type varName (COMMA varName)*;
 
 //Struct declaration
 struct_name: ID;

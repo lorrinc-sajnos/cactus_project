@@ -27,30 +27,5 @@ public class SemanticAnalyzer : GrammarBaseVisitor<StatusCode> {
         return result;
     }
     
-    FunctionSymbol ParseFuncDeclHeader(GP.Func_dcl_headerContext headerContext ){
-        
-        string idStr = headerContext.funcName().GetText();
-        string returnTypeStr = headerContext.returnType().GetText();
-        
-        FunctionSymbol function = new FunctionSymbol(headerContext.funcName().GetText(), typeSystem.RequestType(returnTypeStr));
-        
-        var parameters = headerContext.param();
-        if (parameters != null) {
-            foreach (var parameter in parameters) {
-                function.AddParameter(ParseParamContext(parameter));
-            }
-        }
-
-        return function;
-    }
-
-    VariableSymbol ParseParamContext(GP.ParamContext paramContext) {
-        return new VariableSymbol(
-            paramContext.ID().GetText(), 
-            typeSystem.RequestType(paramContext.type().GetText()),
-            0//TODO
-            );
-    }
-    
     
 }
