@@ -24,3 +24,12 @@ c:/BME/sem6/onlab/Builds/build_1/CactusLang/obj/Debug/net8.0/CactusLang.csproj.U
 /mnt/warehouse/BME/sem6/onlab/cactus_project/Builds/build_1/CactusLang/obj/Debug/net8.0/CactusLang.dll
 /mnt/warehouse/BME/sem6/onlab/cactus_project/Builds/build_1/CactusLang/obj/Debug/net8.0/refint/CactusLang.dll
 /mnt/warehouse/BME/sem6/onlab/cactus_project/Builds/build_1/CactusLang/obj/Debug/net8.0/CactusLang.pdb
+/mnt/warehouse/BME/sem6/onlab/cactus_project/Builds/build_1/CactusLang/bin/Debug/net8.0/CactusLang
+/mnt/warehouse/BME/sem6/onlab/cactus_project/Builds/build_1/CactusLang/bin/Debug/net8.0/CactusLang.deps.json
+/mnt/warehouse/BME/sem6/onlab/cactus_project/Builds/build_1/CactusLang/bin/Debug/net8.0/CactusLang.runtimeconfig.json
+/mnt/warehouse/BME/sem6/onlab/cactus_project/Builds/build_1/CactusLang/bin/Debug/net8.0/CactusLang.dll
+/mnt/warehouse/BME/sem6/onlab/cactus_project/Builds/build_1/CactusLang/bin/Debug/net8.0/CactusLang.pdb
+/mnt/warehouse/BME/sem6/onlab/cactus_project/Builds/build_1/CactusLang/bin/Debug/net8.0/Antlr4.Runtime.Standard.dll
+/mnt/warehouse/BME/sem6/onlab/cactus_project/Builds/build_1/CactusLang/obj/Debug/net8.0/CactusLang.csproj.Up2Date
+/mnt/warehouse/BME/sem6/onlab/cactus_project/Builds/build_1/CactusLang/obj/Debug/net8.0/CactusLang.genruntimeconfig.cache
+/mnt/warehouse/BME/sem6/onlab/cactus_project/Builds/build_1/CactusLang/obj/Debug/net8.0/ref/CactusLang.dll

@@ -7,6 +7,11 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CactusLang", "CactusLang\Ca
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CactusLangTests", "CactusLangTests\CactusLangTests.csproj", "{D3730E3F-2652-453B-ADF2-B0C767919562}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Antlr", "Antlr", "{FD508F55-896B-416D-A88C-044E39E9E3EE}"
+	ProjectSection(SolutionItems) = preProject
+		Grammar.g4 = Grammar.g4
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU

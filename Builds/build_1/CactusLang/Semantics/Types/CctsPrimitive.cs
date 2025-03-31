@@ -72,18 +72,17 @@ public class CctsPrimitive : BaseType {
 
     private int _size;
 
-    public override int Size {
-        get => _size;
-    }
+    public override int Size => _size;
 
     public override bool CanImplicitCastTo(BaseType castTo) {
-        if (castTo is not CctsPrimitive)
-            return false;
-
-        return ((CctsPrimitive)castTo)._subset.Contains(this);
+        if (castTo is CctsPrimitive primitive && primitive._subset.Contains(this)) 
+            return true;
+        return false;
     }
 
     public static HashSet<CctsPrimitive> GetPrimitives() {
-        return new HashSet<CctsPrimitive>(primitives);
+        return
+        [ ..primitives ];
+        //new HashSet<CctsPrimitive>(primitives);
     }
 }

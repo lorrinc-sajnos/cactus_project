@@ -3,10 +3,14 @@
 using Antlr4.Runtime;
 using Antlr4.Runtime.Tree;
 using CactusLang.Semantics;
+using CactusLang.Semantics.Types;
+using CactusLang.Util;
 
-Console.WriteLine("Example parsing");
+CctsPrimitive.InitPrimitives();
 
-var filePath = "test.ccts";
+Debug.LogLine("Begin parsing");
+
+var filePath = "chilltest.ccts";
 
 var input = File.ReadAllText(filePath);
 
@@ -18,7 +22,6 @@ var parser = new GrammarParser(tokenStream);
 
 
 SemanticAnalyzer analyzer = new SemanticAnalyzer();
-
-analyzer.Visit
-
-Console.WriteLine(parser.codefile().ToStringTree());
+analyzer.Analyze(parser.codefile());
+Console.WriteLine("Parsing finished");
+Console.ReadKey();

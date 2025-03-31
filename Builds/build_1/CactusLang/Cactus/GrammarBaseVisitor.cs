@@ -8,7 +8,7 @@
 // </auto-generated>
 //------------------------------------------------------------------------------
 
-// Generated from /mnt/warehouse/BME/sem6/onlab/cactus_project/Builds/build_1/CactusLang/Cactus/Grammar.g4 by ANTLR 4.13.2
+// Generated from /mnt/warehouse/BME/sem6/onlab/cactus_project/Builds/build_1/Grammar.g4 by ANTLR 4.13.2
 
 // Unreachable code detected
 #pragma warning disable 0162
@@ -44,16 +44,6 @@ public partial class GrammarBaseVisitor<Result> : AbstractParseTreeVisitor<Resul
 	/// <param name="context">The parse tree.</param>
 	/// <return>The visitor result.</return>
 	public virtual Result VisitCodefile([NotNull] GrammarParser.CodefileContext context) { return VisitChildren(context); }
-	/// <summary>
-	/// Visit a parse tree produced by <see cref="GrammarParser.eoc"/>.
-	/// <para>
-	/// The default implementation returns the result of calling <see cref="AbstractParseTreeVisitor{Result}.VisitChildren(IRuleNode)"/>
-	/// on <paramref name="context"/>.
-	/// </para>
-	/// </summary>
-	/// <param name="context">The parse tree.</param>
-	/// <return>The visitor result.</return>
-	public virtual Result VisitEoc([NotNull] GrammarParser.EocContext context) { return VisitChildren(context); }
 	/// <summary>
 	/// Visit a parse tree produced by <see cref="GrammarParser.tags"/>.
 	/// <para>
@@ -125,7 +115,7 @@ public partial class GrammarBaseVisitor<Result> : AbstractParseTreeVisitor<Resul
 	/// <return>The visitor result.</return>
 	public virtual Result VisitType([NotNull] GrammarParser.TypeContext context) { return VisitChildren(context); }
 	/// <summary>
-	/// Visit a parse tree produced by <see cref="GrammarParser.func_dcl_header"/>.
+	/// Visit a parse tree produced by <see cref="GrammarParser.funcDclHeader"/>.
 	/// <para>
 	/// The default implementation returns the result of calling <see cref="AbstractParseTreeVisitor{Result}.VisitChildren(IRuleNode)"/>
 	/// on <paramref name="context"/>.
@@ -133,9 +123,9 @@ public partial class GrammarBaseVisitor<Result> : AbstractParseTreeVisitor<Resul
 	/// </summary>
 	/// <param name="context">The parse tree.</param>
 	/// <return>The visitor result.</return>
-	public virtual Result VisitFunc_dcl_header([NotNull] GrammarParser.Func_dcl_headerContext context) { return VisitChildren(context); }
+	public virtual Result VisitFuncDclHeader([NotNull] GrammarParser.FuncDclHeaderContext context) { return VisitChildren(context); }
 	/// <summary>
-	/// Visit a parse tree produced by <see cref="GrammarParser.func_dcl"/>.
+	/// Visit a parse tree produced by <see cref="GrammarParser.funcDcl"/>.
 	/// <para>
 	/// The default implementation returns the result of calling <see cref="AbstractParseTreeVisitor{Result}.VisitChildren(IRuleNode)"/>
 	/// on <paramref name="context"/>.
@@ -143,9 +133,9 @@ public partial class GrammarBaseVisitor<Result> : AbstractParseTreeVisitor<Resul
 	/// </summary>
 	/// <param name="context">The parse tree.</param>
 	/// <return>The visitor result.</return>
-	public virtual Result VisitFunc_dcl([NotNull] GrammarParser.Func_dclContext context) { return VisitChildren(context); }
+	public virtual Result VisitFuncDcl([NotNull] GrammarParser.FuncDclContext context) { return VisitChildren(context); }
 	/// <summary>
-	/// Visit a parse tree produced by <see cref="GrammarParser.func_lamd_body"/>.
+	/// Visit a parse tree produced by <see cref="GrammarParser.funcLamdBody"/>.
 	/// <para>
 	/// The default implementation returns the result of calling <see cref="AbstractParseTreeVisitor{Result}.VisitChildren(IRuleNode)"/>
 	/// on <paramref name="context"/>.
@@ -153,7 +143,7 @@ public partial class GrammarBaseVisitor<Result> : AbstractParseTreeVisitor<Resul
 	/// </summary>
 	/// <param name="context">The parse tree.</param>
 	/// <return>The visitor result.</return>
-	public virtual Result VisitFunc_lamd_body([NotNull] GrammarParser.Func_lamd_bodyContext context) { return VisitChildren(context); }
+	public virtual Result VisitFuncLamdBody([NotNull] GrammarParser.FuncLamdBodyContext context) { return VisitChildren(context); }
 	/// <summary>
 	/// Visit a parse tree produced by <see cref="GrammarParser.returnType"/>.
 	/// <para>
@@ -175,6 +165,16 @@ public partial class GrammarBaseVisitor<Result> : AbstractParseTreeVisitor<Resul
 	/// <return>The visitor result.</return>
 	public virtual Result VisitParam([NotNull] GrammarParser.ParamContext context) { return VisitChildren(context); }
 	/// <summary>
+	/// Visit a parse tree produced by <see cref="GrammarParser.paramName"/>.
+	/// <para>
+	/// The default implementation returns the result of calling <see cref="AbstractParseTreeVisitor{Result}.VisitChildren(IRuleNode)"/>
+	/// on <paramref name="context"/>.
+	/// </para>
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	/// <return>The visitor result.</return>
+	public virtual Result VisitParamName([NotNull] GrammarParser.ParamNameContext context) { return VisitChildren(context); }
+	/// <summary>
 	/// Visit a parse tree produced by <see cref="GrammarParser.funcName"/>.
 	/// <para>
 	/// The default implementation returns the result of calling <see cref="AbstractParseTreeVisitor{Result}.VisitChildren(IRuleNode)"/>
@@ -195,7 +195,7 @@ public partial class GrammarBaseVisitor<Result> : AbstractParseTreeVisitor<Resul
 	/// <return>The visitor result.</return>
 	public virtual Result VisitVarName([NotNull] GrammarParser.VarNameContext context) { return VisitChildren(context); }
 	/// <summary>
-	/// Visit a parse tree produced by <see cref="GrammarParser.field_dcl"/>.
+	/// Visit a parse tree produced by <see cref="GrammarParser.fieldDcl"/>.
 	/// <para>
 	/// The default implementation returns the result of calling <see cref="AbstractParseTreeVisitor{Result}.VisitChildren(IRuleNode)"/>
 	/// on <paramref name="context"/>.
@@ -203,9 +203,9 @@ public partial class GrammarBaseVisitor<Result> : AbstractParseTreeVisitor<Resul
 	/// </summary>
 	/// <param name="context">The parse tree.</param>
 	/// <return>The visitor result.</return>
-	public virtual Result VisitField_dcl([NotNull] GrammarParser.Field_dclContext context) { return VisitChildren(context); }
+	public virtual Result VisitFieldDcl([NotNull] GrammarParser.FieldDclContext context) { return VisitChildren(context); }
 	/// <summary>
-	/// Visit a parse tree produced by <see cref="GrammarParser.struct_name"/>.
+	/// Visit a parse tree produced by <see cref="GrammarParser.structName"/>.
 	/// <para>
 	/// The default implementation returns the result of calling <see cref="AbstractParseTreeVisitor{Result}.VisitChildren(IRuleNode)"/>
 	/// on <paramref name="context"/>.
@@ -213,9 +213,9 @@ public partial class GrammarBaseVisitor<Result> : AbstractParseTreeVisitor<Resul
 	/// </summary>
 	/// <param name="context">The parse tree.</param>
 	/// <return>The visitor result.</return>
-	public virtual Result VisitStruct_name([NotNull] GrammarParser.Struct_nameContext context) { return VisitChildren(context); }
+	public virtual Result VisitStructName([NotNull] GrammarParser.StructNameContext context) { return VisitChildren(context); }
 	/// <summary>
-	/// Visit a parse tree produced by <see cref="GrammarParser.struct_dcl"/>.
+	/// Visit a parse tree produced by <see cref="GrammarParser.structDcl"/>.
 	/// <para>
 	/// The default implementation returns the result of calling <see cref="AbstractParseTreeVisitor{Result}.VisitChildren(IRuleNode)"/>
 	/// on <paramref name="context"/>.
@@ -223,9 +223,9 @@ public partial class GrammarBaseVisitor<Result> : AbstractParseTreeVisitor<Resul
 	/// </summary>
 	/// <param name="context">The parse tree.</param>
 	/// <return>The visitor result.</return>
-	public virtual Result VisitStruct_dcl([NotNull] GrammarParser.Struct_dclContext context) { return VisitChildren(context); }
+	public virtual Result VisitStructDcl([NotNull] GrammarParser.StructDclContext context) { return VisitChildren(context); }
 	/// <summary>
-	/// Visit a parse tree produced by <see cref="GrammarParser.struct_body"/>.
+	/// Visit a parse tree produced by <see cref="GrammarParser.structBody"/>.
 	/// <para>
 	/// The default implementation returns the result of calling <see cref="AbstractParseTreeVisitor{Result}.VisitChildren(IRuleNode)"/>
 	/// on <paramref name="context"/>.
@@ -233,9 +233,9 @@ public partial class GrammarBaseVisitor<Result> : AbstractParseTreeVisitor<Resul
 	/// </summary>
 	/// <param name="context">The parse tree.</param>
 	/// <return>The visitor result.</return>
-	public virtual Result VisitStruct_body([NotNull] GrammarParser.Struct_bodyContext context) { return VisitChildren(context); }
+	public virtual Result VisitStructBody([NotNull] GrammarParser.StructBodyContext context) { return VisitChildren(context); }
 	/// <summary>
-	/// Visit a parse tree produced by <see cref="GrammarParser.class_name"/>.
+	/// Visit a parse tree produced by <see cref="GrammarParser.className"/>.
 	/// <para>
 	/// The default implementation returns the result of calling <see cref="AbstractParseTreeVisitor{Result}.VisitChildren(IRuleNode)"/>
 	/// on <paramref name="context"/>.
@@ -243,9 +243,9 @@ public partial class GrammarBaseVisitor<Result> : AbstractParseTreeVisitor<Resul
 	/// </summary>
 	/// <param name="context">The parse tree.</param>
 	/// <return>The visitor result.</return>
-	public virtual Result VisitClass_name([NotNull] GrammarParser.Class_nameContext context) { return VisitChildren(context); }
+	public virtual Result VisitClassName([NotNull] GrammarParser.ClassNameContext context) { return VisitChildren(context); }
 	/// <summary>
-	/// Visit a parse tree produced by <see cref="GrammarParser.class_dcl"/>.
+	/// Visit a parse tree produced by <see cref="GrammarParser.classDcl"/>.
 	/// <para>
 	/// The default implementation returns the result of calling <see cref="AbstractParseTreeVisitor{Result}.VisitChildren(IRuleNode)"/>
 	/// on <paramref name="context"/>.
@@ -253,9 +253,9 @@ public partial class GrammarBaseVisitor<Result> : AbstractParseTreeVisitor<Resul
 	/// </summary>
 	/// <param name="context">The parse tree.</param>
 	/// <return>The visitor result.</return>
-	public virtual Result VisitClass_dcl([NotNull] GrammarParser.Class_dclContext context) { return VisitChildren(context); }
+	public virtual Result VisitClassDcl([NotNull] GrammarParser.ClassDclContext context) { return VisitChildren(context); }
 	/// <summary>
-	/// Visit a parse tree produced by <see cref="GrammarParser.parent_class"/>.
+	/// Visit a parse tree produced by <see cref="GrammarParser.parentClass"/>.
 	/// <para>
 	/// The default implementation returns the result of calling <see cref="AbstractParseTreeVisitor{Result}.VisitChildren(IRuleNode)"/>
 	/// on <paramref name="context"/>.
@@ -263,7 +263,7 @@ public partial class GrammarBaseVisitor<Result> : AbstractParseTreeVisitor<Resul
 	/// </summary>
 	/// <param name="context">The parse tree.</param>
 	/// <return>The visitor result.</return>
-	public virtual Result VisitParent_class([NotNull] GrammarParser.Parent_classContext context) { return VisitChildren(context); }
+	public virtual Result VisitParentClass([NotNull] GrammarParser.ParentClassContext context) { return VisitChildren(context); }
 	/// <summary>
 	/// Visit a parse tree produced by <see cref="GrammarParser.interface"/>.
 	/// <para>
@@ -285,7 +285,7 @@ public partial class GrammarBaseVisitor<Result> : AbstractParseTreeVisitor<Resul
 	/// <return>The visitor result.</return>
 	public virtual Result VisitInterfaces([NotNull] GrammarParser.InterfacesContext context) { return VisitChildren(context); }
 	/// <summary>
-	/// Visit a parse tree produced by <see cref="GrammarParser.class_body"/>.
+	/// Visit a parse tree produced by <see cref="GrammarParser.classBody"/>.
 	/// <para>
 	/// The default implementation returns the result of calling <see cref="AbstractParseTreeVisitor{Result}.VisitChildren(IRuleNode)"/>
 	/// on <paramref name="context"/>.
@@ -293,7 +293,7 @@ public partial class GrammarBaseVisitor<Result> : AbstractParseTreeVisitor<Resul
 	/// </summary>
 	/// <param name="context">The parse tree.</param>
 	/// <return>The visitor result.</return>
-	public virtual Result VisitClass_body([NotNull] GrammarParser.Class_bodyContext context) { return VisitChildren(context); }
+	public virtual Result VisitClassBody([NotNull] GrammarParser.ClassBodyContext context) { return VisitChildren(context); }
 	/// <summary>
 	/// Visit a parse tree produced by <see cref="GrammarParser.codeBody"/>.
 	/// <para>
@@ -325,6 +325,16 @@ public partial class GrammarBaseVisitor<Result> : AbstractParseTreeVisitor<Resul
 	/// <return>The visitor result.</return>
 	public virtual Result VisitVarDcl([NotNull] GrammarParser.VarDclContext context) { return VisitChildren(context); }
 	/// <summary>
+	/// Visit a parse tree produced by <see cref="GrammarParser.varDclBody"/>.
+	/// <para>
+	/// The default implementation returns the result of calling <see cref="AbstractParseTreeVisitor{Result}.VisitChildren(IRuleNode)"/>
+	/// on <paramref name="context"/>.
+	/// </para>
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	/// <return>The visitor result.</return>
+	public virtual Result VisitVarDclBody([NotNull] GrammarParser.VarDclBodyContext context) { return VisitChildren(context); }
+	/// <summary>
 	/// Visit a parse tree produced by <see cref="GrammarParser.expression"/>.
 	/// <para>
 	/// The default implementation returns the result of calling <see cref="AbstractParseTreeVisitor{Result}.VisitChildren(IRuleNode)"/>
@@ -335,7 +345,7 @@ public partial class GrammarBaseVisitor<Result> : AbstractParseTreeVisitor<Resul
 	/// <return>The visitor result.</return>
 	public virtual Result VisitExpression([NotNull] GrammarParser.ExpressionContext context) { return VisitChildren(context); }
 	/// <summary>
-	/// Visit a parse tree produced by <see cref="GrammarParser.op_MultLvl"/>.
+	/// Visit a parse tree produced by <see cref="GrammarParser.opMultLvl"/>.
 	/// <para>
 	/// The default implementation returns the result of calling <see cref="AbstractParseTreeVisitor{Result}.VisitChildren(IRuleNode)"/>
 	/// on <paramref name="context"/>.
@@ -343,9 +353,9 @@ public partial class GrammarBaseVisitor<Result> : AbstractParseTreeVisitor<Resul
 	/// </summary>
 	/// <param name="context">The parse tree.</param>
 	/// <return>The visitor result.</return>
-	public virtual Result VisitOp_MultLvl([NotNull] GrammarParser.Op_MultLvlContext context) { return VisitChildren(context); }
+	public virtual Result VisitOpMultLvl([NotNull] GrammarParser.OpMultLvlContext context) { return VisitChildren(context); }
 	/// <summary>
-	/// Visit a parse tree produced by <see cref="GrammarParser.op_AddLvl"/>.
+	/// Visit a parse tree produced by <see cref="GrammarParser.opAddLvl"/>.
 	/// <para>
 	/// The default implementation returns the result of calling <see cref="AbstractParseTreeVisitor{Result}.VisitChildren(IRuleNode)"/>
 	/// on <paramref name="context"/>.
@@ -353,9 +363,9 @@ public partial class GrammarBaseVisitor<Result> : AbstractParseTreeVisitor<Resul
 	/// </summary>
 	/// <param name="context">The parse tree.</param>
 	/// <return>The visitor result.</return>
-	public virtual Result VisitOp_AddLvl([NotNull] GrammarParser.Op_AddLvlContext context) { return VisitChildren(context); }
+	public virtual Result VisitOpAddLvl([NotNull] GrammarParser.OpAddLvlContext context) { return VisitChildren(context); }
 	/// <summary>
-	/// Visit a parse tree produced by <see cref="GrammarParser.op_BitLvl"/>.
+	/// Visit a parse tree produced by <see cref="GrammarParser.opBitLvl"/>.
 	/// <para>
 	/// The default implementation returns the result of calling <see cref="AbstractParseTreeVisitor{Result}.VisitChildren(IRuleNode)"/>
 	/// on <paramref name="context"/>.
@@ -363,9 +373,9 @@ public partial class GrammarBaseVisitor<Result> : AbstractParseTreeVisitor<Resul
 	/// </summary>
 	/// <param name="context">The parse tree.</param>
 	/// <return>The visitor result.</return>
-	public virtual Result VisitOp_BitLvl([NotNull] GrammarParser.Op_BitLvlContext context) { return VisitChildren(context); }
+	public virtual Result VisitOpBitLvl([NotNull] GrammarParser.OpBitLvlContext context) { return VisitChildren(context); }
 	/// <summary>
-	/// Visit a parse tree produced by <see cref="GrammarParser.op_CompLvl"/>.
+	/// Visit a parse tree produced by <see cref="GrammarParser.opCompLvl"/>.
 	/// <para>
 	/// The default implementation returns the result of calling <see cref="AbstractParseTreeVisitor{Result}.VisitChildren(IRuleNode)"/>
 	/// on <paramref name="context"/>.
@@ -373,7 +383,7 @@ public partial class GrammarBaseVisitor<Result> : AbstractParseTreeVisitor<Resul
 	/// </summary>
 	/// <param name="context">The parse tree.</param>
 	/// <return>The visitor result.</return>
-	public virtual Result VisitOp_CompLvl([NotNull] GrammarParser.Op_CompLvlContext context) { return VisitChildren(context); }
+	public virtual Result VisitOpCompLvl([NotNull] GrammarParser.OpCompLvlContext context) { return VisitChildren(context); }
 	/// <summary>
 	/// Visit a parse tree produced by <see cref="GrammarParser.primaryExp"/>.
 	/// <para>
@@ -385,7 +395,7 @@ public partial class GrammarBaseVisitor<Result> : AbstractParseTreeVisitor<Resul
 	/// <return>The visitor result.</return>
 	public virtual Result VisitPrimaryExp([NotNull] GrammarParser.PrimaryExpContext context) { return VisitChildren(context); }
 	/// <summary>
-	/// Visit a parse tree produced by <see cref="GrammarParser.op_lUn"/>.
+	/// Visit a parse tree produced by <see cref="GrammarParser.opLeftUn"/>.
 	/// <para>
 	/// The default implementation returns the result of calling <see cref="AbstractParseTreeVisitor{Result}.VisitChildren(IRuleNode)"/>
 	/// on <paramref name="context"/>.
@@ -393,9 +403,9 @@ public partial class GrammarBaseVisitor<Result> : AbstractParseTreeVisitor<Resul
 	/// </summary>
 	/// <param name="context">The parse tree.</param>
 	/// <return>The visitor result.</return>
-	public virtual Result VisitOp_lUn([NotNull] GrammarParser.Op_lUnContext context) { return VisitChildren(context); }
+	public virtual Result VisitOpLeftUn([NotNull] GrammarParser.OpLeftUnContext context) { return VisitChildren(context); }
 	/// <summary>
-	/// Visit a parse tree produced by <see cref="GrammarParser.op_rUn"/>.
+	/// Visit a parse tree produced by <see cref="GrammarParser.opRightUn"/>.
 	/// <para>
 	/// The default implementation returns the result of calling <see cref="AbstractParseTreeVisitor{Result}.VisitChildren(IRuleNode)"/>
 	/// on <paramref name="context"/>.
@@ -403,7 +413,7 @@ public partial class GrammarBaseVisitor<Result> : AbstractParseTreeVisitor<Resul
 	/// </summary>
 	/// <param name="context">The parse tree.</param>
 	/// <return>The visitor result.</return>
-	public virtual Result VisitOp_rUn([NotNull] GrammarParser.Op_rUnContext context) { return VisitChildren(context); }
+	public virtual Result VisitOpRightUn([NotNull] GrammarParser.OpRightUnContext context) { return VisitChildren(context); }
 	/// <summary>
 	/// Visit a parse tree produced by <see cref="GrammarParser.primaryExpVal"/>.
 	/// <para>
@@ -524,6 +534,16 @@ public partial class GrammarBaseVisitor<Result> : AbstractParseTreeVisitor<Resul
 	/// <param name="context">The parse tree.</param>
 	/// <return>The visitor result.</return>
 	public virtual Result VisitNullLiteral([NotNull] GrammarParser.NullLiteralContext context) { return VisitChildren(context); }
+	/// <summary>
+	/// Visit a parse tree produced by <see cref="GrammarParser.numSign"/>.
+	/// <para>
+	/// The default implementation returns the result of calling <see cref="AbstractParseTreeVisitor{Result}.VisitChildren(IRuleNode)"/>
+	/// on <paramref name="context"/>.
+	/// </para>
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	/// <return>The visitor result.</return>
+	public virtual Result VisitNumSign([NotNull] GrammarParser.NumSignContext context) { return VisitChildren(context); }
 	/// <summary>
 	/// Visit a parse tree produced by <see cref="GrammarParser.numLiteral"/>.
 	/// <para>

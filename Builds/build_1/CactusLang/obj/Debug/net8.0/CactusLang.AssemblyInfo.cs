@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("CactusLang")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+406f9d059b96c334e551a2ee6840234bfe32822b")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+060831886eac8cbaec25838591490b0fd3725a3d")]
 [assembly: System.Reflection.AssemblyProductAttribute("CactusLang")]
 [assembly: System.Reflection.AssemblyTitleAttribute("CactusLang")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

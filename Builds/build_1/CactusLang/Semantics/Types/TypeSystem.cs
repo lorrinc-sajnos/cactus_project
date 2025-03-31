@@ -14,7 +14,6 @@ public class TypeSystem {
 
     public TypeSystem() {
         _types = new();
-        _finalizables = new();
         AddPrimitives();
     }
 
@@ -30,42 +29,9 @@ public class TypeSystem {
     }
 
     public BaseType Get(string typeName) {
-        return _types[typeName];
+        return _types.GetByKey(typeName);
     }
 
-    public VariableSymbol CreateOptmcVarSym(string typeName, string name) {
-        VariableSymbol symbol;
-        if (_types.ContainsKey(typeName)) {
-            symbol = new VariableSymbol(_types[typeName], name, -999);
-        }
-        else {
-            symbol = new VariableSymbol(new MissingType(typeName), name, -9999);
-            _finalizables.Add(symbol);
-        }
-
-        return symbol;
-    }
-
-    public FunctionSymbol CreateOptmcFuncSym(string typeName, string name) {
-        FunctionSymbol symbol;
-        if (_types.ContainsKey(typeName)) {
-            symbol = new FunctionSymbol(_types[typeName], name);
-        }
-        else {
-            symbol = new FunctionSymbol(new MissingType(typeName), name);
-            _finalizables.Add(symbol);
-        }
-
-        return symbol;
-    }
-
-    List<IFinalizable> _finalizables;
-
-    public bool Finalize() {
-        foreach (var finalizable in _finalizables) {
-            if (!finalizable.Finalize(this)) return false;
-        }
-
-        return true;
-    }
 }
+
+//TODO először a struct majd a fgv

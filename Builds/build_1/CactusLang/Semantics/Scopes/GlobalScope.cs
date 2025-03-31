@@ -1,3 +1,4 @@
+using CactusLang.Semantics.IDs;
 using CactusLang.Semantics.Symbols;
 using CactusLang.Util;
 
@@ -7,10 +8,7 @@ public class GlobalScope : Scope {
     
     private Scope _currentScope;
 
-    private OrderedDictionary<string, FunctionSymbol> _globFunctions;
-    
-    
-    
+    private OrderedDictionary<FuncID, FunctionSymbol> _globFunctions;
     public Scope CurrentScope => _currentScope;
     
     public GlobalScope() {
@@ -26,7 +24,7 @@ public class GlobalScope : Scope {
         _currentScope = _currentScope.Parent;
     }
     
-    public FunctionSymbol GetFunction(string id) {
+    public FunctionSymbol GetFunction(FuncID id) {
         if(_globFunctions.ContainsKey(id)) return _globFunctions[id];
         return null;
     }
