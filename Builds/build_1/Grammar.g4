@@ -9,7 +9,7 @@ tags: TAG+;
 globStatement
     : (preprocessor_stm)
 	//| tags EOS
-	| (fieldDcl EOS)
+	| (globVarDcl EOS)
 	| (funcDcl)
 	| (structDcl)
 	| (classDcl)
@@ -24,6 +24,8 @@ ppc__Include: KYW_INCLUDE filepath; //include <file>;
 
 ptrLvl : OP_STAR+;
 type: ID ptrLvl?;
+
+globVarDcl: varDcl;
 
 //Function declaration
 
@@ -54,7 +56,10 @@ structDcl:
 	structBody//
 	BODY_CLS;
 	
-structBody: (funcDcl | (fieldDcl EOS))*;
+structBody
+    : funcDcl
+    | (fieldDcl EOS)*
+    ;
 
 //Class declaration
 
@@ -89,7 +94,6 @@ varDcl: tags? type varDclBody (COMMA varDclBody)*;
 
 varDclBody: varName (OP_ASG expression)?;
 
-
 expression
     :   primaryExp
         | expression opMultLvl expression
@@ -112,7 +116,7 @@ opAddLvl
     ;
 
 opBitLvl
-    : OP_AND
+    : OP_B_AND
     | OP_B_OR
     | OP_B_XOR
     | OP_LSH
@@ -122,8 +126,8 @@ opBitLvl
 opCompLvl
     : OP_EQL
     | OP_NEQ
-    | OP_AND
-    | OP_B_OR
+    | OP_L_AND
+    | OP_L_OR
     | OP_LST
     | OP_GRT
     | OP_GREQ
@@ -272,8 +276,12 @@ ppc__Token: (
 //Keywords:
 KYW_INCLUDE: 'include';
 KYW_STRUCT: 'struct';
-KYW_CLASS: 'class';
 KYW_IMPLEMENTS: 'implements';
+
+//class keywords:
+
+KYW_CLASS: 'class';
+KYW_STATIC: 'static';
 
 //Literal keywords
 KYW_TRUE: 'true';
@@ -309,7 +317,7 @@ OP_REM: '%';
 OP_ADD: '+';
 OP_SUB: '-';
 
-OP_AND: '&';
+OP_B_AND: '&';
 OP_B_OR: '|';
 OP_B_XOR: '^';
 
@@ -401,9 +409,9 @@ PPC_ID: PPC_PRFX ID;
 PPC_DEEP_ID: PPC_DEEP_PRFX ID;
 
 
-COMMENT: ('/*' .*? '*/') -> skip;       //Purposefully left in!
-LINE_COMMENT: ('//' .*? '\n') -> skip;
+COMMENT: ('/*' .*? '*/') -> channel(HIDDEN);       //Purposefully left in!
+LINE_COMMENT: ('//' .*? '\n') -> channel(HIDDEN);
 
 
-WHITESPACE: ('\n' | ' ' | '\t')+ -> skip;
-NEWLINE: ('\r'? '\n' | '\r')+ -> skip;
+WHITESPACE: ('\n' | ' ' | '\t')+ -> channel(HIDDEN);
+NEWLINE: ('\r'? '\n' | '\r')+ -> channel(HIDDEN);

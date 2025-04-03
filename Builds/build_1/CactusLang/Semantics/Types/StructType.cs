@@ -4,25 +4,28 @@ using CactusLang.Util;
 
 namespace CactusLang.Semantics.Types;
 
-public class StructType : BaseType , IContainElements {
+public class StructType : BaseType {
     private OrderedDictionary<VarID,VariableSymbol> _variables;
-    private OrderedDictionary<FuncID,FunctionSymbol> _functions;
+    private OrderedDictionary<FuncID,FunctionSymbol> _instanceFunctions;
 
 
     public StructType(string name) : base(name) {
         _variables = new();
-        _functions = new();
+        _instanceFunctions = new();
     }
 
     public void AddVariable(VariableSymbol variable) => _variables.Add(new(variable.Name), variable); //TODO kiegesziteni
-    public void AddFunction(FunctionSymbol function) => _functions.Add(function.ID, function);
+    public void AddInstanceFunction(FunctionSymbol function) => _instanceFunctions.Add(function.ID, function);
 
-
-    public override int Size {
-        get => -999; //TODO C generálás alapján kiszámolni...
+    public List<VariableSymbol> GetVariables() {
+        return _variables.Values.ToList();
     }
 
-    public override bool CanImplicitCastTo(BaseType castTo) {
-        return false;
+    public bool ContainsFunction(FuncID id) => _instanceFunctions.ContainsKey(id);
+    public FunctionSymbol GetFunction(FuncID id) {
+        return _instanceFunctions[id];
+    }
+    public override int Size {
+        get => -999; //TODO C generálás alapján kiszámolni...
     }
 }

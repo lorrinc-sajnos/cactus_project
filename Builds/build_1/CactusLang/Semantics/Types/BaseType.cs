@@ -9,6 +9,4 @@ public abstract class BaseType {
     public BaseType(string name) {
         Name = name;
     }
-
-    public abstract bool CanImplicitCastTo(BaseType castTo);
 }

@@ -15,9 +15,9 @@ public class VariableSymbol {
 
     public int PointerLevel { get; private set; }
 
-    public VariableSymbol(BaseType type, string name) : this(type, name, 0) { }
+    public VariableSymbol(BaseType type, string name) : this(type, 0, name) { }
 
-    public VariableSymbol(BaseType type, string name, int ptrLvl) {
+    public VariableSymbol(BaseType type, int ptrLvl, string name) {
         Tags = new TagContainer();
         Name = name;
         Type = type;

@@ -19,7 +19,7 @@ public class TypeSystem {
 
     //Primitives
     private void AddPrimitives() {
-        foreach (var primitive in CctsPrimitive.GetPrimitives()) {
+        foreach (var primitive in PrimitiveType.GetPrimitives()) {
             _types.Add(primitive.Name, primitive);
         }
     }
@@ -29,9 +29,8 @@ public class TypeSystem {
     }
 
     public BaseType Get(string typeName) {
-        return _types.GetByKey(typeName);
+        return _types[typeName];
     }
-
 }
 
 //TODO először a struct majd a fgv

@@ -111,6 +111,16 @@ public interface IGrammarListener : IParseTreeListener {
 	/// <param name="context">The parse tree.</param>
 	void ExitType([NotNull] GrammarParser.TypeContext context);
 	/// <summary>
+	/// Enter a parse tree produced by <see cref="GrammarParser.globVarDcl"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	void EnterGlobVarDcl([NotNull] GrammarParser.GlobVarDclContext context);
+	/// <summary>
+	/// Exit a parse tree produced by <see cref="GrammarParser.globVarDcl"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	void ExitGlobVarDcl([NotNull] GrammarParser.GlobVarDclContext context);
+	/// <summary>
 	/// Enter a parse tree produced by <see cref="GrammarParser.funcDclHeader"/>.
 	/// </summary>
 	/// <param name="context">The parse tree.</param>

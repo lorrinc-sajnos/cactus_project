@@ -132,6 +132,18 @@ public partial class GrammarBaseListener : IGrammarListener {
 	/// <param name="context">The parse tree.</param>
 	public virtual void ExitType([NotNull] GrammarParser.TypeContext context) { }
 	/// <summary>
+	/// Enter a parse tree produced by <see cref="GrammarParser.globVarDcl"/>.
+	/// <para>The default implementation does nothing.</para>
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	public virtual void EnterGlobVarDcl([NotNull] GrammarParser.GlobVarDclContext context) { }
+	/// <summary>
+	/// Exit a parse tree produced by <see cref="GrammarParser.globVarDcl"/>.
+	/// <para>The default implementation does nothing.</para>
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	public virtual void ExitGlobVarDcl([NotNull] GrammarParser.GlobVarDclContext context) { }
+	/// <summary>
 	/// Enter a parse tree produced by <see cref="GrammarParser.funcDclHeader"/>.
 	/// <para>The default implementation does nothing.</para>
 	/// </summary>

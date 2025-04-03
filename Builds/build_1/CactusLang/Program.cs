@@ -6,7 +6,7 @@ using CactusLang.Semantics;
 using CactusLang.Semantics.Types;
 using CactusLang.Util;
 
-CctsPrimitive.InitPrimitives();
+PrimitiveType.InitPrimitives();
 
 Debug.LogLine("Begin parsing");
 
@@ -24,4 +24,4 @@ var parser = new GrammarParser(tokenStream);
 SemanticAnalyzer analyzer = new SemanticAnalyzer();
 analyzer.Analyze(parser.codefile());
 Console.WriteLine("Parsing finished");
-Console.ReadKey();
+//Console.ReadKey();
