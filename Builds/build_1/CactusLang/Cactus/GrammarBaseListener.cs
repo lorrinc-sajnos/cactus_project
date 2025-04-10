@@ -60,17 +60,17 @@ public partial class GrammarBaseListener : IGrammarListener {
 	/// <param name="context">The parse tree.</param>
 	public virtual void ExitTags([NotNull] GrammarParser.TagsContext context) { }
 	/// <summary>
-	/// Enter a parse tree produced by <see cref="GrammarParser.globStatement"/>.
+	/// Enter a parse tree produced by <see cref="GrammarParser.fileStatement"/>.
 	/// <para>The default implementation does nothing.</para>
 	/// </summary>
 	/// <param name="context">The parse tree.</param>
-	public virtual void EnterGlobStatement([NotNull] GrammarParser.GlobStatementContext context) { }
+	public virtual void EnterFileStatement([NotNull] GrammarParser.FileStatementContext context) { }
 	/// <summary>
-	/// Exit a parse tree produced by <see cref="GrammarParser.globStatement"/>.
+	/// Exit a parse tree produced by <see cref="GrammarParser.fileStatement"/>.
 	/// <para>The default implementation does nothing.</para>
 	/// </summary>
 	/// <param name="context">The parse tree.</param>
-	public virtual void ExitGlobStatement([NotNull] GrammarParser.GlobStatementContext context) { }
+	public virtual void ExitFileStatement([NotNull] GrammarParser.FileStatementContext context) { }
 	/// <summary>
 	/// Enter a parse tree produced by <see cref="GrammarParser.preprocessor_stm"/>.
 	/// <para>The default implementation does nothing.</para>
@@ -108,18 +108,6 @@ public partial class GrammarBaseListener : IGrammarListener {
 	/// <param name="context">The parse tree.</param>
 	public virtual void ExitPpc__Include([NotNull] GrammarParser.Ppc__IncludeContext context) { }
 	/// <summary>
-	/// Enter a parse tree produced by <see cref="GrammarParser.ptrLvl"/>.
-	/// <para>The default implementation does nothing.</para>
-	/// </summary>
-	/// <param name="context">The parse tree.</param>
-	public virtual void EnterPtrLvl([NotNull] GrammarParser.PtrLvlContext context) { }
-	/// <summary>
-	/// Exit a parse tree produced by <see cref="GrammarParser.ptrLvl"/>.
-	/// <para>The default implementation does nothing.</para>
-	/// </summary>
-	/// <param name="context">The parse tree.</param>
-	public virtual void ExitPtrLvl([NotNull] GrammarParser.PtrLvlContext context) { }
-	/// <summary>
 	/// Enter a parse tree produced by <see cref="GrammarParser.type"/>.
 	/// <para>The default implementation does nothing.</para>
 	/// </summary>
@@ -132,17 +120,17 @@ public partial class GrammarBaseListener : IGrammarListener {
 	/// <param name="context">The parse tree.</param>
 	public virtual void ExitType([NotNull] GrammarParser.TypeContext context) { }
 	/// <summary>
-	/// Enter a parse tree produced by <see cref="GrammarParser.globVarDcl"/>.
+	/// Enter a parse tree produced by <see cref="GrammarParser.fileVarDcl"/>.
 	/// <para>The default implementation does nothing.</para>
 	/// </summary>
 	/// <param name="context">The parse tree.</param>
-	public virtual void EnterGlobVarDcl([NotNull] GrammarParser.GlobVarDclContext context) { }
+	public virtual void EnterFileVarDcl([NotNull] GrammarParser.FileVarDclContext context) { }
 	/// <summary>
-	/// Exit a parse tree produced by <see cref="GrammarParser.globVarDcl"/>.
+	/// Exit a parse tree produced by <see cref="GrammarParser.fileVarDcl"/>.
 	/// <para>The default implementation does nothing.</para>
 	/// </summary>
 	/// <param name="context">The parse tree.</param>
-	public virtual void ExitGlobVarDcl([NotNull] GrammarParser.GlobVarDclContext context) { }
+	public virtual void ExitFileVarDcl([NotNull] GrammarParser.FileVarDclContext context) { }
 	/// <summary>
 	/// Enter a parse tree produced by <see cref="GrammarParser.funcDclHeader"/>.
 	/// <para>The default implementation does nothing.</para>
@@ -408,17 +396,29 @@ public partial class GrammarBaseListener : IGrammarListener {
 	/// <param name="context">The parse tree.</param>
 	public virtual void ExitVarDclBody([NotNull] GrammarParser.VarDclBodyContext context) { }
 	/// <summary>
-	/// Enter a parse tree produced by <see cref="GrammarParser.expression"/>.
+	/// Enter a parse tree produced by <see cref="GrammarParser.expressionHead"/>.
 	/// <para>The default implementation does nothing.</para>
 	/// </summary>
 	/// <param name="context">The parse tree.</param>
-	public virtual void EnterExpression([NotNull] GrammarParser.ExpressionContext context) { }
+	public virtual void EnterExpressionHead([NotNull] GrammarParser.ExpressionHeadContext context) { }
 	/// <summary>
-	/// Exit a parse tree produced by <see cref="GrammarParser.expression"/>.
+	/// Exit a parse tree produced by <see cref="GrammarParser.expressionHead"/>.
 	/// <para>The default implementation does nothing.</para>
 	/// </summary>
 	/// <param name="context">The parse tree.</param>
-	public virtual void ExitExpression([NotNull] GrammarParser.ExpressionContext context) { }
+	public virtual void ExitExpressionHead([NotNull] GrammarParser.ExpressionHeadContext context) { }
+	/// <summary>
+	/// Enter a parse tree produced by <see cref="GrammarParser.expressionNode"/>.
+	/// <para>The default implementation does nothing.</para>
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	public virtual void EnterExpressionNode([NotNull] GrammarParser.ExpressionNodeContext context) { }
+	/// <summary>
+	/// Exit a parse tree produced by <see cref="GrammarParser.expressionNode"/>.
+	/// <para>The default implementation does nothing.</para>
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	public virtual void ExitExpressionNode([NotNull] GrammarParser.ExpressionNodeContext context) { }
 	/// <summary>
 	/// Enter a parse tree produced by <see cref="GrammarParser.opMultLvl"/>.
 	/// <para>The default implementation does nothing.</para>
@@ -780,6 +780,30 @@ public partial class GrammarBaseListener : IGrammarListener {
 	/// <param name="context">The parse tree.</param>
 	public virtual void ExitBoolLiteral([NotNull] GrammarParser.BoolLiteralContext context) { }
 	/// <summary>
+	/// Enter a parse tree produced by <see cref="GrammarParser.idPart"/>.
+	/// <para>The default implementation does nothing.</para>
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	public virtual void EnterIdPart([NotNull] GrammarParser.IdPartContext context) { }
+	/// <summary>
+	/// Exit a parse tree produced by <see cref="GrammarParser.idPart"/>.
+	/// <para>The default implementation does nothing.</para>
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	public virtual void ExitIdPart([NotNull] GrammarParser.IdPartContext context) { }
+	/// <summary>
+	/// Enter a parse tree produced by <see cref="GrammarParser.accOp"/>.
+	/// <para>The default implementation does nothing.</para>
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	public virtual void EnterAccOp([NotNull] GrammarParser.AccOpContext context) { }
+	/// <summary>
+	/// Exit a parse tree produced by <see cref="GrammarParser.accOp"/>.
+	/// <para>The default implementation does nothing.</para>
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	public virtual void ExitAccOp([NotNull] GrammarParser.AccOpContext context) { }
+	/// <summary>
 	/// Enter a parse tree produced by <see cref="GrammarParser.varRef"/>.
 	/// <para>The default implementation does nothing.</para>
 	/// </summary>
@@ -995,18 +1019,6 @@ public partial class GrammarBaseListener : IGrammarListener {
 	/// </summary>
 	/// <param name="context">The parse tree.</param>
 	public virtual void ExitPpc__funcCall([NotNull] GrammarParser.Ppc__funcCallContext context) { }
-	/// <summary>
-	/// Enter a parse tree produced by <see cref="GrammarParser.ppc__Token"/>.
-	/// <para>The default implementation does nothing.</para>
-	/// </summary>
-	/// <param name="context">The parse tree.</param>
-	public virtual void EnterPpc__Token([NotNull] GrammarParser.Ppc__TokenContext context) { }
-	/// <summary>
-	/// Exit a parse tree produced by <see cref="GrammarParser.ppc__Token"/>.
-	/// <para>The default implementation does nothing.</para>
-	/// </summary>
-	/// <param name="context">The parse tree.</param>
-	public virtual void ExitPpc__Token([NotNull] GrammarParser.Ppc__TokenContext context) { }
 
 	/// <inheritdoc/>
 	/// <remarks>The default implementation does nothing.</remarks>

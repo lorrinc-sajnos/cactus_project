@@ -1,15 +1,18 @@
-using CactusLang.Semantics.IDs;
+using CactusLang.Semantics;
 using CactusLang.Semantics.Symbols;
 using CactusLang.Util;
 
 namespace CactusLang.Semantics.Types;
 
 public class StructType : BaseType {
-    private OrderedDictionary<VarID,VariableSymbol> _variables;
-    private OrderedDictionary<FuncID,FunctionSymbol> _instanceFunctions;
+    private readonly string _id;
+    public override string Name => _id;
+    private OrderedDictionary<string,VariableSymbol> _variables;
+    private OrderedDictionary<string,FunctionSymbol> _instanceFunctions;
 
 
-    public StructType(string name) : base(name) {
+    public StructType(string name) {
+        _id = name;
         _variables = new();
         _instanceFunctions = new();
     }
@@ -21,8 +24,8 @@ public class StructType : BaseType {
         return _variables.Values.ToList();
     }
 
-    public bool ContainsFunction(FuncID id) => _instanceFunctions.ContainsKey(id);
-    public FunctionSymbol GetFunction(FuncID id) {
+    public bool ContainsFunction(string id) => _instanceFunctions.ContainsKey(id);
+    public FunctionSymbol GetFunction(string id) {
         return _instanceFunctions[id];
     }
     public override int Size {

@@ -1,18 +1,16 @@
-using System;
-using System.Diagnostics.CodeAnalysis;
-using CactusLang.Semantics.Symbols;
-using CactusLang.Semantics.Types;
 using CactusLang.Util;
 
-namespace CactusLang.Semantics;
+namespace CactusLang.Semantics.Types;
 
 //
 
 public class TypeSystem {
-    private OrderedDictionary<string, BaseType> _types;
+    private readonly ErrorHandler _errorHandler;
+    private readonly OrderedDictionary<string, BaseType> _types;
     public bool MissingTypeFlag { get; set; }
 
-    public TypeSystem() {
+    public TypeSystem(ErrorHandler errorHandler) {
+        _errorHandler = errorHandler;
         _types = new();
         AddPrimitives();
     }
@@ -24,13 +22,43 @@ public class TypeSystem {
         }
     }
 
-    public void AddType(BaseType type) {
-        _types.Add(type.Name, type);
+    public void AddStruct(GrammarParser.StructDclContext ctx) {
+        string structName = ctx.structName().GetText();
+        StructType structType = new StructType(structName);
+        
+        if (_types.ContainsKey(structType.Name)) {
+            _errorHandler.AddError(CctsError.ALREADY_DEFINED.CompTime(ctx.structName()));
+            return;
+        }
+        _types.Add(structType.Name, structType);
     }
 
-    public BaseType Get(string typeName) {
-        return _types[typeName];
+    public StructType GetStruct(GrammarParser.StructDclContext ctx) {
+        string structName = ctx.structName().GetText();
+        
+        return (StructType)_types[structName];
+    }
+
+
+    public BaseType Get(GrammarParser.TypeContext ctx) {
+        string rawText = ctx.GetText();
+        
+        //Works, because * can only be at the end of the type
+        int ptrLvl = rawText.Count(c => c == '*');
+        
+        string trueName = rawText.Substring(0, rawText.Length - ptrLvl);
+
+        if (!_types.ContainsKey(trueName)) {
+            _errorHandler.AddError(CctsError.TYPE_NOT_FOUND.CompTime(ctx) );
+            return ErrorType.ERROR;
+        }
+        
+        var type = _types[trueName];
+        
+        //If it is a pointer:
+        if (ptrLvl>0)
+            return PointerType.CreatePointer(type, ptrLvl);
+        
+        return type;
     }
 }
-
-//TODO először a struct majd a fgv

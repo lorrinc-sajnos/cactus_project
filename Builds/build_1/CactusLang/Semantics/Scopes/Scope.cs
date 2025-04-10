@@ -1,7 +1,5 @@
 using CactusLang.Semantics.Symbols;
 using CactusLang.Util;
-using System.Collections.Specialized;
-using CactusLang.Semantics.IDs;
 
 namespace CactusLang.Semantics.Scopes;
 
@@ -9,7 +7,7 @@ public class Scope {
     private Scope _parent;
     private List<Scope> _children;
 
-    private OrderedDictionary<VarID, VariableSymbol> _variables;
+    private OrderedDictionary<string, VariableSymbol> _variables;
 
     protected Scope() : this(null) { }
     private Scope(Scope parent) {
@@ -27,12 +25,12 @@ public class Scope {
     }
 
     public Scope Parent => _parent;
-    public virtual VariableSymbol GetVariable(VarID id) {
+    public virtual VariableSymbol GetVariable(string id) {
         if(_variables.ContainsKey(id)) 
             return _variables[id];
         if (_parent != null) 
             return _parent.GetVariable(id);
-        throw new Exception($"Variable {id.Path} does not exist.");
+        throw new Exception($"Variable {id} does not exist.");
     }
 
     /// <summary>
@@ -41,14 +39,15 @@ public class Scope {
     /// <param name="variable"></param>
     /// <returns>True, if a new variable was added.</returns>
     public bool AddVariable(VariableSymbol variable) {
-        if(_variables.ContainsKey(variable.ID))
-            throw new Exception($"Variable {variable.ID} already exists");
+        if(_variables.ContainsKey(variable.Id)) {
+            return false;
+        }
         
-        _variables.Add(variable.ID, variable);
+        _variables.Add(variable.Id, variable);
         return true;
     }
     
-    public virtual FunctionSymbol GetFunction(FuncID id) {
+    public virtual FunctionSymbol GetFunction(string id) {
         return _parent.GetFunction(id);
     }
 }

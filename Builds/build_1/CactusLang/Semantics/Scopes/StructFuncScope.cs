@@ -1,4 +1,3 @@
-using CactusLang.Semantics.IDs;
 using CactusLang.Semantics.Symbols;
 using CactusLang.Semantics.Types;
 
@@ -10,18 +9,18 @@ public class StructFuncScope : Scope {
 
     public StructFuncScope(StructType structType) {
         _structType = structType;
-        _thisPtr = new VariableSymbol(_structType, 1, "this");
+        _thisPtr = new VariableSymbol(_structType.GetPointer(), "this");
 
         InitVariables();
     }
 
     private void InitVariables() {
         foreach (var varSymbol in _structType.GetVariables()) {
-            this.AddVariable(varSymbol);
+            var result = this.AddVariable(varSymbol);
         }
     }
 
-    public override FunctionSymbol GetFunction(FuncID id) {
+    public override FunctionSymbol GetFunction(string id) {
         if(_structType.ContainsFunction(id))
             return _structType.GetFunction(id);
         

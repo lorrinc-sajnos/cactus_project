@@ -8,13 +8,15 @@ using GP = GrammarParser;
 namespace CactusLang.Semantics;
 
 public class SemanticAnalyzer : GrammarBaseVisitor<StatusCode> {
-    private TypeSystem _typeSystem;
-    private GlobalScope _globalScope;
+    private readonly TypeSystem _typeSystem;
+    private readonly FileScope _fileScope;
+    private readonly ErrorHandler _errorHandler;
 
 
     public SemanticAnalyzer() {
-        _typeSystem = new TypeSystem();
-        _globalScope = new GlobalScope();
+        _errorHandler = new ErrorHandler();
+        _fileScope = new FileScope(_errorHandler);
+        _typeSystem = new TypeSystem(_errorHandler);
     }
 
     public void Analyze(GP.CodefileContext ctx) {
@@ -22,28 +24,27 @@ public class SemanticAnalyzer : GrammarBaseVisitor<StatusCode> {
         RegisterStructs(ctx);
         //After registering structs, the Type system is completed, can begin registering functions
         RegisterGlobalScope(ctx);
-        Debug.LogLine("Registration finished.");
-        Debug.LogLine("Beginning analization.");
-        AnalyzeCodefile(ctx);
+        //Debug.LogLine("Registration finished.");
+        //Debug.LogLine("Beginning analization.");
+        AnalyzeCodeFile(ctx);
     }
-    
+
     #region Registering
 
     private void RegisterIncludes(GP.CodefileContext ctx) {
         //TODO
         Debug.LogLine(":O");
     }
+
     private void RegisterStructs(GP.CodefileContext ctx) {
-        var statements = ctx.globStatement();
+        var statements = ctx.fileStatement();
         //First create the structs
         foreach (var statement in statements) {
             if (statement.structDcl() != null) {
                 var structDcl = statement.structDcl();
-                string structName = structDcl.structName().GetText();
-                StructType structType = new StructType(structName);
 
-                Debug.LogLine($"Struct {structName} declared");
-                _typeSystem.AddType(structType); //TODO err Already defined?
+                //Debug.LogLine($"Struct {structName} declared");
+                _typeSystem.AddStruct(structDcl); //TODO err Already defined?
             }
         }
 
@@ -51,9 +52,8 @@ public class SemanticAnalyzer : GrammarBaseVisitor<StatusCode> {
         foreach (var statement in statements) {
             if (statement.structDcl() != null) {
                 var structDcl = statement.structDcl();
-                string structName = structDcl.structName().GetText();
-                Debug.LogLine($"@Struct  {structName}:");
-                StructType structType = (StructType)_typeSystem.Get(structName);
+                StructType structType = _typeSystem.GetStruct(structDcl);
+                Debug.LogLine($"@Struct  {structType.Name}:");
 
                 var structBody = structDcl.structBody();
 
@@ -71,66 +71,73 @@ public class SemanticAnalyzer : GrammarBaseVisitor<StatusCode> {
             }
         }
     }
+
     private void RegisterGlobalScope(GP.CodefileContext ctx) {
-        var globStatement = ctx.globStatement();
-        
+        var globStatement = ctx.fileStatement();
+
         foreach (var statement in globStatement) {
             if (statement.funcDcl() != null) {
                 var funcDcl = statement.funcDcl();
                 RegisterGlobFuncDcl(funcDcl);
-            } else if (statement.globVarDcl() != null) {
-                var globVarCtx = statement.globVarDcl();
-                RegisterGlobVarDcl(globVarCtx);
+            }
+            else if (statement.fileVarDcl() != null) {
+                var globVarCtx = statement.fileVarDcl();
+                RegisterFileVarDcl(globVarCtx);
             }
         }
     }
+
     private void RegisterGlobFuncDcl(GP.FuncDclContext ctx) {
         var header = ctx.funcDclHeader();
         string funcName = header.funcName().GetText();
-        BaseType returnType = _typeSystem.Get(header.returnType().GetText());
+        BaseType returnType = _typeSystem.Get(header.returnType().type());
         FunctionSymbol funcSymb = new FunctionSymbol(returnType, funcName);
 
         foreach (var param in header.param()) {
             string pName = param.paramName().GetText();
-            BaseType pType = _typeSystem.Get(param.type().GetText());
+            BaseType pType = _typeSystem.Get(param.type());
             funcSymb.AddParameter(new VariableSymbol(pType, pName));
         }
-        
-        _globalScope.AddFunction(funcSymb);
-        Debug.LogLine($"Func {funcSymb.ID.Path} declared.");
+
+        _fileScope.AddFunction(funcSymb);
+        Debug.LogLine($"Func {funcSymb.ID} declared.");
     }
-    private void RegisterGlobVarDcl(GP.GlobVarDclContext ctx) {
+
+    private void RegisterFileVarDcl(GP.FileVarDclContext ctx) {
         var varCtx = ctx.varDcl();
-        
+
         var varSymbols = GetVarSymbols(varCtx);
 
         foreach (VariableSymbol symb in varSymbols) {
-            _globalScope.AddVariable(symb);
+            var result = _fileScope.AddVariable(symb);
+            if (!result)
+                _errorHandler.AddError(CctsError.ALREADY_DEFINED, ctx.Start, ctx.Stop);
+            
             Debug.LogLine($"GlobVar Added: {symb.Type.Name}   {symb.Name}");
         }
     }
 
 
-
     private void RegisterStructFuncDcl(StructType structType, GP.FuncDclContext ctx) {
         var header = ctx.funcDclHeader();
         string funcName = header.funcName().GetText();
-        BaseType returnType = _typeSystem.Get(header.returnType().GetText());
+        BaseType returnType = _typeSystem.Get(header.returnType().type());
         FunctionSymbol funcSymb = new FunctionSymbol(returnType, funcName);
 
         foreach (var param in header.param()) {
             string pName = param.paramName().GetText();
-            BaseType pType = _typeSystem.Get(param.type().GetText());
+            BaseType pType = _typeSystem.Get(param.type());
             funcSymb.AddParameter(new VariableSymbol(pType, pName));
         }
-        
+
         structType.AddInstanceFunction(funcSymb);
     }
+
     private void RegisterStructFieldDcl(StructType structType, GP.FieldDclContext ctx) {
         var varCtx = ctx.varDcl();
-        
+
         List<VariableSymbol> varSymbols = new List<VariableSymbol>();
-        BaseType type = _typeSystem.Get(varCtx.type().GetText());
+        BaseType type = _typeSystem.Get(varCtx.type());
         foreach (var varBody in varCtx.varDclBody()) {
             varSymbols.Add(new VariableSymbol(type, varBody.varName().GetText()));
         }
@@ -141,42 +148,42 @@ public class SemanticAnalyzer : GrammarBaseVisitor<StatusCode> {
         }
     }
 
-    
     #endregion
 
-    private void AnalyzeCodefile(GP.CodefileContext ctx) {
-        foreach (var statement in ctx.globStatement()) {
+    private void AnalyzeCodeFile(GP.CodefileContext ctx) {
+        foreach (var statement in ctx.fileStatement()) {
             //Global function bodies
             if (statement.funcDcl() != null) {
                 var funcDcl = statement.funcDcl();
-                
+
                 ProcessFunctionBody(funcDcl);
-            } else //Structs function bodies
+            }
+            else //Structs function bodies
             if (statement.structDcl() != null) {
                 var structDcl = statement.structDcl();
-                string structName = structDcl.structName().GetText();
-                Debug.LogLine($"\n---@Struct {structName} ENTERED");
-                StructType structType = (StructType)_typeSystem.Get(structName);
-                
+                StructType structType = _typeSystem.GetStruct(structDcl);
+                Debug.LogLine($"\n---@Struct {structType.Name} ENTERED");
+
                 //Loop through the functions of the struct
                 var structFuncs = structDcl.structBody().funcDcl();
-                _globalScope.StepInStructFunc(structType);
+                _fileScope.StepInStructFunc(structType);
                 foreach (var funcDclCtx in structFuncs) {
                     ProcessFunctionBody(funcDclCtx);
                 }
-                _globalScope.StepOut();
-                Debug.LogLine($"\n---@Struct {structName} EXITED");
+
+                _fileScope.StepOut();
+                Debug.LogLine($"\n---@Struct {structType.Name} EXITED");
                 Debug.LogLine();
             }
         }
     }
-    
+
     private void ProcessFunctionBody(GP.FuncDclContext ctx) {
         //If function has C code, trust that it will work
         if (ctx.ppc__C_Code_Body() != null || ctx.ppc__C_Func_Map() != null) {
             return;
         }
-        
+
         if (ctx.funcLamdBody() != null) {
             //TODO...
             return;
@@ -190,38 +197,52 @@ public class SemanticAnalyzer : GrammarBaseVisitor<StatusCode> {
     }
 
     public override StatusCode VisitCodeBody(GrammarParser.CodeBodyContext context) {
-        _globalScope.StepIn();
+        _fileScope.StepIn();
         Debug.LogLine("Entering code body.");
-        var result =  base.VisitCodeBody(context);
-        _globalScope.StepOut();
+        var result = base.VisitCodeBody(context);
+        _fileScope.StepOut();
         Debug.LogLine("Exiting code body.");
         return result;
     }
-    
+
     #region Statement Handling
+
+    private ExpressionValidator CreateValidator(GP.ExpressionNodeContext node) =>
+        new ExpressionValidator(_errorHandler,_typeSystem, _fileScope.CurrentScope, node);
+    
+    
     public override StatusCode VisitStatement(GP.StatementContext ctx) {
-        
-        Debug.LogLine("statement:"+ctx.GetText());
+        //Debug.LogLine("statement:"+ctx.GetText());
         return base.VisitStatement(ctx);
     }
 
     public override StatusCode VisitVarDcl(GrammarParser.VarDclContext context) {
         List<VariableSymbol> varSymbols = GetVarSymbols(context);
         foreach (var varSymbol in varSymbols) {
-            _globalScope.CurrentScope.AddVariable(varSymbol);
+            _fileScope.CurrentScope.AddVariable(varSymbol);
         }
+
         return base.VisitVarDcl(context);
     }
-    
+
+    public override StatusCode VisitExpressionHead(GrammarParser.ExpressionHeadContext ctx) {
+        var exprNode = ctx.expressionNode();
+        var validator = CreateValidator(exprNode);
+        var result = validator.Evaluate();
+        return base.VisitExpressionHead(ctx);
+    }
+
     #endregion
-    
+
     private List<VariableSymbol> GetVarSymbols(GrammarParser.VarDclContext varCtx) {
         List<VariableSymbol> varSymbols = new List<VariableSymbol>();
-        BaseType type = _typeSystem.Get(varCtx.type().GetText());
+        BaseType type = _typeSystem.Get(varCtx.type());
         foreach (var varBody in varCtx.varDclBody()) {
             varSymbols.Add(new VariableSymbol(type, varBody.varName().GetText()));
         }
 
         return varSymbols;
     }
+    
+    
 }

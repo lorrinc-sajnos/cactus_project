@@ -1,15 +1,15 @@
 grammar Grammar;
 
 
-codefile: (globStatement)* EOF;
+codefile: (fileStatement)* EOF;
 
 //Parser Rules
 tags: TAG+;
 
-globStatement
+fileStatement
     : (preprocessor_stm)
 	//| tags EOS
-	| (globVarDcl EOS)
+	| (fileVarDcl EOS)
 	| (funcDcl)
 	| (structDcl)
 	| (classDcl)
@@ -21,11 +21,9 @@ preprocessor_stm: (ppc__Include);
 filepath: OP_LST ID (OP_DIV ID)* OP_GRT;
 ppc__Include: KYW_INCLUDE filepath; //include <file>;
 
+type: TYPE;
 
-ptrLvl : OP_STAR+;
-type: ID ptrLvl?;
-
-globVarDcl: varDcl;
+fileVarDcl: varDcl;
 
 //Function declaration
 
@@ -38,7 +36,7 @@ funcDcl: funcDclHeader(
         | ppc__C_Func_Map EOS
     );
 
-funcLamdBody: OP_LAMDA expression;
+funcLamdBody: OP_LAMDA expressionHead;
 
 returnType: type;
 param: type paramName;
@@ -57,7 +55,7 @@ structDcl:
 	BODY_CLS;
 	
 structBody
-    : funcDcl
+    : funcDcl*
     | (fieldDcl EOS)*
     ;
 
@@ -80,7 +78,7 @@ codeBody: BODY_OPN (statement)* BODY_CLS;
 
 statement
     : varDcl EOS
-    | expression EOS
+    | expressionHead EOS
     | ifStatement
     | forLoop
     | whileLoop
@@ -92,20 +90,20 @@ statement
 
 varDcl: tags? type varDclBody (COMMA varDclBody)*;
 
-varDclBody: varName (OP_ASG expression)?;
+varDclBody: varName (OP_ASG expressionHead)?;
 
-expression
+expressionHead: expressionNode;
+expressionNode
     :   primaryExp
-        | expression opMultLvl expression
-        | expression opAddLvl expression
-        | expression opBitLvl expression
-        | expression opCompLvl expression
-
+        | expressionNode opMultLvl expressionNode
+        | expressionNode opAddLvl expressionNode
+        | expressionNode opBitLvl expressionNode
+        | expressionNode opCompLvl expressionNode
     ;
 
 //Operators
-opMultLvl:
-	| OP_STAR
+opMultLvl
+    : OP_STAR
 	| OP_DIV
 	| OP_REM
 	;
@@ -148,14 +146,13 @@ opLeftUn
     | LUNOP_B_NOT
     | LUNOP_L_NOT
     | LUNOP_SIZEOF
-    | OP_AND
+    | LUNOP_ADDR
     | explicitCast
     ;
 
 opRightUn:
     UNOP_DCR
     | UNOP_INC;
-
 
 primaryExpVal
     : parenthsExp
@@ -164,7 +161,7 @@ primaryExpVal
     | ppc__funcCall
     ;
 
-parenthsExp: PARN_OPN expression PARN_CLS;
+parenthsExp: PARN_OPN expressionHead PARN_CLS;
 
 miscPrimeExp //Miscellanious primary expressions
     : assignment
@@ -172,16 +169,16 @@ miscPrimeExp //Miscellanious primary expressions
     | free
     ;
 
-alloc: KYW_ALLOC (expression | type);
+alloc: KYW_ALLOC (expressionHead | type);
 free: KYW_FREE varRef;
 explicitCast: PARN_OPN type PARN_CLS;
 
-assignment: varRef OP_ASG expression;
+assignment: varRef OP_ASG expressionHead;
 
 //Function call
 funcCall: funcRef PARN_OPN funcParamVals? PARN_CLS;
 
-funcParamVals: expression (COMMA expression)*;
+funcParamVals: expressionHead (COMMA expressionHead)*;
 funcRef: varRef;
 
 //Literals
@@ -218,19 +215,21 @@ charLiteral: CHAR;
 
 boolLiteral: KYW_TRUE | KYW_FALSE;
 
-varRef: ID ((OP_ACC | OP_REF) ID)*;//The name of the variable can be refferenced eg.: car.driver:name
+idPart : ID;
+accOp: OP_ACC | OP_REF;
+varRef: idPart (accOp idPart)*;//The name of the variable can be refferenced eg.: car.driver:name
 
-ifStatement: KYW_IF PARN_OPN expression PARN_CLS codeBody elseStatement?;
+ifStatement: KYW_IF PARN_OPN expressionHead PARN_CLS codeBody elseStatement?;
 elseStatement: KYW_ELSE (ifStatement | codeBody);
 
-returnStatement: KYW_RETURN expression?;
+returnStatement: KYW_RETURN expressionHead?;
 continueStatement: KYW_CONTINUE;
 breakStatement: KYW_BREAK;
 
 //FOR loop
 loopDecl : varDcl;
-loopCond : expression;
-endExp: expression;
+loopCond : expressionHead;
+endExp: expressionHead;
 
 forLoop: KYW_FOR PARN_OPN loopDecl EOS loopCond EOS endExp PARN_CLS codeBody;
 
@@ -248,11 +247,11 @@ ppc__varRef: PPC_ID;
 ppc__funcRef: (PPC_ID | PPC_DEEP_ID);
 ppc__funcCall: ppc__funcRef PARN_OPN funcParamVals? PARN_CLS;
 
-ppc__Token: (
+/*ppc__Token: (
     ID
     | OP_ACC
     | OP_REF
-    | OP_AND
+    | OP_B_AND
     | OP_GRT
     | OP_LST
     | PARN_OPN
@@ -260,7 +259,7 @@ ppc__Token: (
     | SQPN_OPN
     | SQPN_CLS
     | STRING
-);
+);*/
 
 
 //ppc__Expression: ppc__Token{1,8};
@@ -305,7 +304,7 @@ UNOP_DCR: '--';
 LUNOP_L_NOT: '!';
 LUNOP_B_NOT: '~';
 LUNOP_SIZEOF: 'sizeof';
-
+LUNOP_ADDR: OP_B_AND;
 
 OP_ASG: '=';
 
@@ -337,7 +336,7 @@ OP_GREQ: '>=';
 
 OP_LAMDA: '=>';
 
-//MIsc opr.
+//Misc opr.
 
 OP_ACC: ':'; //Access operator:     Car car1;           car1:pass_c = 2;
 OP_REF: '.'; //Refference operator: Car* car1 = xyz;    car1.pass_c = 2;
@@ -349,6 +348,8 @@ PARN_OPN: '(';
 PARN_CLS: ')';
 SQPN_OPN: '[';
 SQPN_CLS: ']';
+
+//Literal operators:
 
 
 //Preprocessor magic
@@ -381,7 +382,9 @@ OCT_STR: OCT_PRFX [0-7]+;
 BIN_STR: BIN_PRFX [01]+;
 
 
-CHAR: '\'' (~['\\\r\n] | EscapeSequence) '\'';
+//ESC_CHAR: '\'';
+//ESC_STR: '\'';
+CHAR: '\''(~['\\\r\n] | EscapeSequence)'\'';
 //String
 // Ellesve innen: https://github.com/antlr/grammars-v4/blob/master/c/C.g4
 fragment EscapeSequence: SimpleEscapeSequence;
@@ -402,7 +405,9 @@ TAG: TAG_PRFX ID;
 
 //ID
 ID: Id_start Id_chars*;
-fragment Id_start: ([a-z] | [A-Z] | '_');
+TYPE: ID OP_STAR*; //Force pointer starts to the type
+
+fragment Id_start: ([a-z]|[A-Z]|'_');
 fragment Id_chars: Id_start | Digit;
 
 PPC_ID: PPC_PRFX ID;

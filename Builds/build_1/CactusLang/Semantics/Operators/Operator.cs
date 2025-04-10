@@ -23,28 +23,27 @@ public abstract class Operator {
     public abstract BaseType Evaluate(BaseType lhs, BaseType rhs);
     
     //Multiplication level
-    public static readonly MathOperator Mult = new("*", OperatorLvl.Mult);
-    public static readonly MathOperator Div = new("/", OperatorLvl.Mult);
-    public static readonly IntOperator Remainder = new("%", OperatorLvl.Mult);
-    
+    public static readonly MathOperator MULT = new("*", OperatorLvl.Mult);
+    public static readonly MathOperator DIV = new("/", OperatorLvl.Mult);
+    public static readonly IntOperator REMAINDER = new("%", OperatorLvl.Mult);
     //Addition level
-    public static readonly MathOperator Add = new("+", OperatorLvl.Add);
-    public static readonly MathOperator Sub = new("-", OperatorLvl.Add);
+    public static readonly MathOperator ADD = new("+", OperatorLvl.Add);
+    public static readonly MathOperator SUB = new("-", OperatorLvl.Add);
     //Bit level
-    public static readonly IntOperator BitAnd = new("&", OperatorLvl.Bit);
-    public static readonly IntOperator BitOr = new("|", OperatorLvl.Bit);
-    public static readonly IntOperator BitXor = new("^", OperatorLvl.Bit);
-    public static readonly IntOperator BitLeftShift = new("<<", OperatorLvl.Bit);
-    public static readonly IntOperator BitRightShift = new(">>", OperatorLvl.Bit);
+    public static readonly IntOperator BIT_AND = new("&", OperatorLvl.Bit);
+    public static readonly IntOperator BIT_OR = new("|", OperatorLvl.Bit);
+    public static readonly IntOperator BIT_XOR = new("^", OperatorLvl.Bit);
+    public static readonly IntOperator BIT_LEFT_SHIFT = new("<<", OperatorLvl.Bit);
+    public static readonly IntOperator BIT_RIGHT_SHIFT = new(">>", OperatorLvl.Bit);
     //Comparison operator
-    public static readonly CompOperator Eq = new("==",OperatorLvl.Comparison);
-    public static readonly CompOperator Neq = new("!=",OperatorLvl.Comparison);
-    public static readonly CompOperator And = new("&&",OperatorLvl.Comparison);
-    public static readonly CompOperator Or = new("||",OperatorLvl.Comparison);
-    public static readonly CompOperator LessThan = new("<",OperatorLvl.Comparison);
-    public static readonly CompOperator GreaterThan = new(">",OperatorLvl.Comparison);
-    public static readonly CompOperator LessThanEq = new("<=",OperatorLvl.Comparison);
-    public static readonly CompOperator GreaterThanEq = new(">=",OperatorLvl.Comparison);
+    public static readonly CompOperator EQ = new("==",OperatorLvl.Comparison);
+    public static readonly CompOperator NEQ = new("!=",OperatorLvl.Comparison);
+    public static readonly CompOperator AND = new("&&",OperatorLvl.Comparison);
+    public static readonly CompOperator OR = new("||",OperatorLvl.Comparison);
+    public static readonly CompOperator LS_THAN = new("<",OperatorLvl.Comparison);
+    public static readonly CompOperator GR_THAN = new(">",OperatorLvl.Comparison);
+    public static readonly CompOperator LS_THAN_EQ = new("<=",OperatorLvl.Comparison);
+    public static readonly CompOperator GR_THAN_EQ = new(">=",OperatorLvl.Comparison);
     
     
     
