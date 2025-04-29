@@ -212,17 +212,17 @@ public interface IGrammarVisitor<Result> : IParseTreeVisitor<Result> {
 	/// <return>The visitor result.</return>
 	Result VisitVarDclBody([NotNull] GrammarParser.VarDclBodyContext context);
 	/// <summary>
-	/// Visit a parse tree produced by <see cref="GrammarParser.expressionHead"/>.
+	/// Visit a parse tree produced by <see cref="GrammarParser.expressionStatement"/>.
 	/// </summary>
 	/// <param name="context">The parse tree.</param>
 	/// <return>The visitor result.</return>
-	Result VisitExpressionHead([NotNull] GrammarParser.ExpressionHeadContext context);
+	Result VisitExpressionStatement([NotNull] GrammarParser.ExpressionStatementContext context);
 	/// <summary>
-	/// Visit a parse tree produced by <see cref="GrammarParser.expressionNode"/>.
+	/// Visit a parse tree produced by <see cref="GrammarParser.expression"/>.
 	/// </summary>
 	/// <param name="context">The parse tree.</param>
 	/// <return>The visitor result.</return>
-	Result VisitExpressionNode([NotNull] GrammarParser.ExpressionNodeContext context);
+	Result VisitExpression([NotNull] GrammarParser.ExpressionContext context);
 	/// <summary>
 	/// Visit a parse tree produced by <see cref="GrammarParser.opMultLvl"/>.
 	/// </summary>
@@ -248,12 +248,6 @@ public interface IGrammarVisitor<Result> : IParseTreeVisitor<Result> {
 	/// <return>The visitor result.</return>
 	Result VisitOpCompLvl([NotNull] GrammarParser.OpCompLvlContext context);
 	/// <summary>
-	/// Visit a parse tree produced by <see cref="GrammarParser.primaryExp"/>.
-	/// </summary>
-	/// <param name="context">The parse tree.</param>
-	/// <return>The visitor result.</return>
-	Result VisitPrimaryExp([NotNull] GrammarParser.PrimaryExpContext context);
-	/// <summary>
 	/// Visit a parse tree produced by <see cref="GrammarParser.opLeftUn"/>.
 	/// </summary>
 	/// <param name="context">The parse tree.</param>
@@ -266,23 +260,47 @@ public interface IGrammarVisitor<Result> : IParseTreeVisitor<Result> {
 	/// <return>The visitor result.</return>
 	Result VisitOpRightUn([NotNull] GrammarParser.OpRightUnContext context);
 	/// <summary>
+	/// Visit a parse tree produced by <see cref="GrammarParser.primaryExp"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	/// <return>The visitor result.</return>
+	Result VisitPrimaryExp([NotNull] GrammarParser.PrimaryExpContext context);
+	/// <summary>
+	/// Visit a parse tree produced by <see cref="GrammarParser.objFuncCall"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	/// <return>The visitor result.</return>
+	Result VisitObjFuncCall([NotNull] GrammarParser.ObjFuncCallContext context);
+	/// <summary>
+	/// Visit a parse tree produced by <see cref="GrammarParser.objFieldRef"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	/// <return>The visitor result.</return>
+	Result VisitObjFieldRef([NotNull] GrammarParser.ObjFieldRefContext context);
+	/// <summary>
 	/// Visit a parse tree produced by <see cref="GrammarParser.primaryExpVal"/>.
 	/// </summary>
 	/// <param name="context">The parse tree.</param>
 	/// <return>The visitor result.</return>
 	Result VisitPrimaryExpVal([NotNull] GrammarParser.PrimaryExpValContext context);
 	/// <summary>
+	/// Visit a parse tree produced by <see cref="GrammarParser.accOp"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	/// <return>The visitor result.</return>
+	Result VisitAccOp([NotNull] GrammarParser.AccOpContext context);
+	/// <summary>
+	/// Visit a parse tree produced by <see cref="GrammarParser.fieldRef"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	/// <return>The visitor result.</return>
+	Result VisitFieldRef([NotNull] GrammarParser.FieldRefContext context);
+	/// <summary>
 	/// Visit a parse tree produced by <see cref="GrammarParser.parenthsExp"/>.
 	/// </summary>
 	/// <param name="context">The parse tree.</param>
 	/// <return>The visitor result.</return>
 	Result VisitParenthsExp([NotNull] GrammarParser.ParenthsExpContext context);
-	/// <summary>
-	/// Visit a parse tree produced by <see cref="GrammarParser.miscPrimeExp"/>.
-	/// </summary>
-	/// <param name="context">The parse tree.</param>
-	/// <return>The visitor result.</return>
-	Result VisitMiscPrimeExp([NotNull] GrammarParser.MiscPrimeExpContext context);
 	/// <summary>
 	/// Visit a parse tree produced by <see cref="GrammarParser.alloc"/>.
 	/// </summary>
@@ -403,18 +421,6 @@ public interface IGrammarVisitor<Result> : IParseTreeVisitor<Result> {
 	/// <param name="context">The parse tree.</param>
 	/// <return>The visitor result.</return>
 	Result VisitBoolLiteral([NotNull] GrammarParser.BoolLiteralContext context);
-	/// <summary>
-	/// Visit a parse tree produced by <see cref="GrammarParser.idPart"/>.
-	/// </summary>
-	/// <param name="context">The parse tree.</param>
-	/// <return>The visitor result.</return>
-	Result VisitIdPart([NotNull] GrammarParser.IdPartContext context);
-	/// <summary>
-	/// Visit a parse tree produced by <see cref="GrammarParser.accOp"/>.
-	/// </summary>
-	/// <param name="context">The parse tree.</param>
-	/// <return>The visitor result.</return>
-	Result VisitAccOp([NotNull] GrammarParser.AccOpContext context);
 	/// <summary>
 	/// Visit a parse tree produced by <see cref="GrammarParser.varRef"/>.
 	/// </summary>

@@ -14,4 +14,10 @@ public class OrderedDictionary<TKey, TValue> : Dictionary<TKey, TValue> {
         _orderedKeys.Add(key);
     }
     public TValue GetByIndex(int index) => this[_orderedKeys[index]];
+
+    public new void Remove(TKey key) {
+        int keyIndex = _orderedKeys.IndexOf(key);
+        _orderedKeys.RemoveAt(keyIndex);
+        base.Remove(key);
+    }
 }

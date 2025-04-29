@@ -1,6 +1,12 @@
 using System;
-using CactusLang.Semantics.Scopes;
-using CactusLang.Semantics.Symbols;
+using Antlr4.Runtime;
+using CactusLang.Model;
+using CactusLang.Model.Codefiles;
+using CactusLang.Model.Errors;
+using CactusLang.Model.Scopes;
+using CactusLang.Model.Symbols;
+using CactusLang.Model.Types;
+using CactusLang.Semantics.Errors;
 using CactusLang.Semantics.Types;
 using CactusLang.Util;
 using GP = GrammarParser;
@@ -8,27 +14,50 @@ using GP = GrammarParser;
 namespace CactusLang.Semantics;
 
 public class SemanticAnalyzer : GrammarBaseVisitor<StatusCode> {
+    private readonly GrammarParser _parser;
+    
     private readonly TypeSystem _typeSystem;
     private readonly FileScope _fileScope;
     private readonly ErrorHandler _errorHandler;
+    public ErrorHandler ErrorHandler => _errorHandler;
 
-
-    public SemanticAnalyzer() {
+    private Scope CurrentScope => _fileScope.CurrentScope;
+    
+    public SemanticAnalyzer(CodeFile codeFile) {
+        //Antlr
+        var inputStream = new AntlrInputStream(codeFile.Code);
+        var lexer = new GrammarLexer(inputStream);
+        var tokenStream = new CommonTokenStream(lexer);
+        _parser = new GrammarParser(tokenStream);
+        
+        
         _errorHandler = new ErrorHandler();
+        
+        _parser.AddErrorListener(_errorHandler.ErrorListener);
+        
         _fileScope = new FileScope(_errorHandler);
         _typeSystem = new TypeSystem(_errorHandler);
     }
 
-    public void Analyze(GP.CodefileContext ctx) {
+    public void Analyze() {
+        GP.CodefileContext ctx = _parser.codefile();
+        
+        Debug.LogLine($"Start index:\t{ctx.Start.StartIndex}");
+        Debug.LogLine($"Stop index:\t{ctx.Stop.StopIndex}");
+        
         RegisterIncludes(ctx);
         RegisterStructs(ctx);
         //After registering structs, the Type system is completed, can begin registering functions
-        RegisterGlobalScope(ctx);
+        RegisterFileScope(ctx);
         //Debug.LogLine("Registration finished.");
         //Debug.LogLine("Beginning analization.");
         AnalyzeCodeFile(ctx);
     }
 
+    private void AddParserErrors() {
+        
+    }
+    
     #region Registering
 
     private void RegisterIncludes(GP.CodefileContext ctx) {
@@ -72,13 +101,13 @@ public class SemanticAnalyzer : GrammarBaseVisitor<StatusCode> {
         }
     }
 
-    private void RegisterGlobalScope(GP.CodefileContext ctx) {
+    private void RegisterFileScope(GP.CodefileContext ctx) {
         var globStatement = ctx.fileStatement();
 
         foreach (var statement in globStatement) {
             if (statement.funcDcl() != null) {
                 var funcDcl = statement.funcDcl();
-                RegisterGlobFuncDcl(funcDcl);
+                RegisterFileFuncDcl(funcDcl);
             }
             else if (statement.fileVarDcl() != null) {
                 var globVarCtx = statement.fileVarDcl();
@@ -87,7 +116,7 @@ public class SemanticAnalyzer : GrammarBaseVisitor<StatusCode> {
         }
     }
 
-    private void RegisterGlobFuncDcl(GP.FuncDclContext ctx) {
+    private void RegisterFileFuncDcl(GP.FuncDclContext ctx) {
         var header = ctx.funcDclHeader();
         string funcName = header.funcName().GetText();
         BaseType returnType = _typeSystem.Get(header.returnType().type());
@@ -99,8 +128,11 @@ public class SemanticAnalyzer : GrammarBaseVisitor<StatusCode> {
             funcSymb.AddParameter(new VariableSymbol(pType, pName));
         }
 
-        _fileScope.AddFunction(funcSymb);
-        Debug.LogLine($"Func {funcSymb.ID} declared.");
+        var result = _fileScope.AddFunction(funcSymb);
+        if (result == false) {
+            _errorHandler.PostError(CctsError.OVERLOAD_DOESNT_MATCH_RET_TYPE.CompTime(header.funcName()));
+        }
+        Debug.LogLine($"Func {funcSymb.Name} declared.");
     }
 
     private void RegisterFileVarDcl(GP.FileVarDclContext ctx) {
@@ -111,7 +143,7 @@ public class SemanticAnalyzer : GrammarBaseVisitor<StatusCode> {
         foreach (VariableSymbol symb in varSymbols) {
             var result = _fileScope.AddVariable(symb);
             if (!result)
-                _errorHandler.AddError(CctsError.ALREADY_DEFINED, ctx.Start, ctx.Stop);
+                _errorHandler.AddError(CctsError.ALREADY_DEFINED.CompTime(ctx));
             
             Debug.LogLine($"GlobVar Added: {symb.Type.Name}   {symb.Name}");
         }
@@ -167,6 +199,7 @@ public class SemanticAnalyzer : GrammarBaseVisitor<StatusCode> {
                 //Loop through the functions of the struct
                 var structFuncs = structDcl.structBody().funcDcl();
                 _fileScope.StepInStructFunc(structType);
+                
                 foreach (var funcDclCtx in structFuncs) {
                     ProcessFunctionBody(funcDclCtx);
                 }
@@ -188,12 +221,38 @@ public class SemanticAnalyzer : GrammarBaseVisitor<StatusCode> {
             //TODO...
             return;
         }
-        //Handle the most common case: lines of code:
-
+        //Handle the most common case:
+        
+        
+        FunctionSymbol? func = CurrentScope.GetMatchingFunction(GetIdFromDclCtx(ctx.funcDclHeader()));//Should be always non-null
+        
         var codeBody = ctx.codeBody();
+        
         Debug.LogLine($"FUNC {ctx.funcDclHeader().GetText()} ENTERED");
+        //_fileScope.StepIn();
+        //Add the parameters to the current scope
+        foreach (var param in func.GetParameters()) {
+            CurrentScope.AddVariable(param);    //In theory, scope is empty at this point, thus an error cannot occur.
+        }
+        
         VisitCodeBody(codeBody);
+        
+        //_fileScope.StepOut();
+        
+        
         Debug.LogLine($"FUNC {ctx.funcDclHeader().GetText()} EXITED\n");
+        
+    }
+
+    private FuncId GetIdFromDclCtx(GP.FuncDclHeaderContext ctx) {
+        string funcName = ctx.funcName().GetText();
+        List<BaseType> paramTypes = new();
+        foreach(var param in ctx.param()) {
+            
+            paramTypes.Add( _typeSystem.Get(param.type()) );
+        }
+
+        return new FuncId(funcName, paramTypes);
     }
 
     public override StatusCode VisitCodeBody(GrammarParser.CodeBodyContext context) {
@@ -207,8 +266,8 @@ public class SemanticAnalyzer : GrammarBaseVisitor<StatusCode> {
 
     #region Statement Handling
 
-    private ExpressionValidator CreateValidator(GP.ExpressionNodeContext node) =>
-        new ExpressionValidator(_errorHandler,_typeSystem, _fileScope.CurrentScope, node);
+    private ExpressionTypeEvaluator CreateValidator(GP.ExpressionContext node) =>
+        new(_errorHandler, _typeSystem, _fileScope.CurrentScope, node);
     
     
     public override StatusCode VisitStatement(GP.StatementContext ctx) {
@@ -216,20 +275,35 @@ public class SemanticAnalyzer : GrammarBaseVisitor<StatusCode> {
         return base.VisitStatement(ctx);
     }
 
-    public override StatusCode VisitVarDcl(GrammarParser.VarDclContext context) {
-        List<VariableSymbol> varSymbols = GetVarSymbols(context);
-        foreach (var varSymbol in varSymbols) {
+    public override StatusCode VisitVarDcl(GrammarParser.VarDclContext ctx) {
+        BaseType dclType = _typeSystem.Get(ctx.type());
+        
+        foreach (var dclBody in ctx.varDclBody()) {
+            var varSymbol = new VariableSymbol(dclType, dclBody.varName().GetText());
+            //Typecheck:
+            if (dclBody.expression()!= null) {
+                var asgExpr = dclBody.expression();
+                var validator =  CreateValidator(asgExpr);
+                var asgType = validator.EvaluateType();
+
+                
+                if (!asgType.CanBeUsedAs(dclType)) {
+                    _errorHandler.PostError(CctsError.TYPE_MISMATCH.CompTime(ctx, asgType, dclType));
+                }
+
+            }
+                
             _fileScope.CurrentScope.AddVariable(varSymbol);
         }
 
-        return base.VisitVarDcl(context);
+        return base.VisitVarDcl(ctx);
     }
 
-    public override StatusCode VisitExpressionHead(GrammarParser.ExpressionHeadContext ctx) {
-        var exprNode = ctx.expressionNode();
-        var validator = CreateValidator(exprNode);
-        var result = validator.Evaluate();
-        return base.VisitExpressionHead(ctx);
+    public override StatusCode VisitExpression(GrammarParser.ExpressionContext ctx) {
+        var validator = CreateValidator(ctx);
+        validator.EvaluateType();
+        
+        return base.VisitExpression(ctx);
     }
 
     #endregion

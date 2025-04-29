@@ -21,7 +21,7 @@ preprocessor_stm: (ppc__Include);
 filepath: OP_LST ID (OP_DIV ID)* OP_GRT;
 ppc__Include: KYW_INCLUDE filepath; //include <file>;
 
-type: TYPE;
+type: ID | PTR_ID;
 
 fileVarDcl: varDcl;
 
@@ -36,7 +36,7 @@ funcDcl: funcDclHeader(
         | ppc__C_Func_Map EOS
     );
 
-funcLamdBody: OP_LAMDA expressionHead;
+funcLamdBody: OP_LAMDA expression;
 
 returnType: type;
 param: type paramName;
@@ -55,9 +55,10 @@ structDcl:
 	BODY_CLS;
 	
 structBody
-    : funcDcl*
-    | (fieldDcl EOS)*
-    ;
+    :(
+        funcDcl
+        | (fieldDcl EOS)
+    )*;
 
 //Class declaration
 
@@ -78,27 +79,28 @@ codeBody: BODY_OPN (statement)* BODY_CLS;
 
 statement
     : varDcl EOS
-    | expressionHead EOS
+    | expressionStatement EOS
     | ifStatement
     | forLoop
     | whileLoop
     | breakStatement EOS
     | continueStatement EOS
     | returnStatement EOS
+    | free EOS
     | tags
     ;
 
 varDcl: tags? type varDclBody (COMMA varDclBody)*;
 
-varDclBody: varName (OP_ASG expressionHead)?;
+varDclBody: varName (OP_ASG expression)?;
 
-expressionHead: expressionNode;
-expressionNode
+expressionStatement: expression;
+expression
     :   primaryExp
-        | expressionNode opMultLvl expressionNode
-        | expressionNode opAddLvl expressionNode
-        | expressionNode opBitLvl expressionNode
-        | expressionNode opCompLvl expressionNode
+        | expression opMultLvl expression
+        | expression opAddLvl expression
+        | expression opBitLvl expression
+        | expression opCompLvl expression
     ;
 
 //Operators
@@ -132,13 +134,6 @@ opCompLvl
     | OP_LSEQ
     ;
 
-primaryExp
-    : primaryExpVal opRightUn?
-    | opLeftUn primaryExpVal
-    | miscPrimeExp
-
-    //| ppc__Expression
-    ;
 
 opLeftUn
     : UNOP_DCR
@@ -150,35 +145,56 @@ opLeftUn
     | explicitCast
     ;
 
-opRightUn:
-    UNOP_DCR
-    | UNOP_INC;
+opRightUn
+    : UNOP_DCR
+    | UNOP_INC
+    ;
+    
+    
+primaryExp
+    //value primary expression
+    : primaryExpVal opRightUn?
+    | opLeftUn primaryExpVal
+    //referrences
+    | primaryExp objFuncCall
+    | primaryExp objFieldRef
+    //Other primary expressions
+    | assignment
+    | alloc
+    ;
+
+    //| ppc__Expression
+
+objFuncCall: accOp funcCall;
+objFieldRef: accOp fieldRef;
+
+
 
 primaryExpVal
     : parenthsExp
     | funcCall
+    | varRef
     | literalExp
     | ppc__funcCall
     ;
 
-parenthsExp: PARN_OPN expressionHead PARN_CLS;
 
-miscPrimeExp //Miscellanious primary expressions
-    : assignment
-    | alloc
-    | free
-    ;
+accOp: OP_ACC | OP_REF;
+fieldRef: varRef;
 
-alloc: KYW_ALLOC (expressionHead | type);
+
+parenthsExp: PARN_OPN expression PARN_CLS;
+
+alloc: KYW_ALLOC (expression | type);
 free: KYW_FREE varRef;
 explicitCast: PARN_OPN type PARN_CLS;
 
-assignment: varRef OP_ASG expressionHead;
+assignment: varRef OP_ASG expression;
 
 //Function call
 funcCall: funcRef PARN_OPN funcParamVals? PARN_CLS;
 
-funcParamVals: expressionHead (COMMA expressionHead)*;
+funcParamVals: expression (COMMA expression)*;
 funcRef: varRef;
 
 //Literals
@@ -188,7 +204,6 @@ literalExp
     | strLiteral
     | charLiteral
     | boolLiteral
-    | varRef
 
     | ppc__varRef
     ;
@@ -202,11 +217,17 @@ numLiteral: numSign? intLiteral | floatLiteral;
 
 intLiteral: (intDecLiteral | intHexLiteral | intBinLiteral  | intOctLiteral);
 intDecLiteral: INT_STR;
+
 intHexLiteral: HEX_STR;
+
 intBinLiteral: BIN_STR;
+
 intOctLiteral: OCT_STR;
 
-floatLiteral: INT_STR? '.' INT_STR;
+//Float
+floatLiteral: FLOAT_STR;
+
+
 
 //String Literal
 strLiteral: STRING;
@@ -215,21 +236,19 @@ charLiteral: CHAR;
 
 boolLiteral: KYW_TRUE | KYW_FALSE;
 
-idPart : ID;
-accOp: OP_ACC | OP_REF;
-varRef: idPart (accOp idPart)*;//The name of the variable can be refferenced eg.: car.driver:name
+varRef: ID;//The name of the variable can be refferenced eg.: car.driver:name
 
-ifStatement: KYW_IF PARN_OPN expressionHead PARN_CLS codeBody elseStatement?;
+ifStatement: KYW_IF PARN_OPN expression PARN_CLS codeBody elseStatement?;
 elseStatement: KYW_ELSE (ifStatement | codeBody);
 
-returnStatement: KYW_RETURN expressionHead?;
+returnStatement: KYW_RETURN expression?;
 continueStatement: KYW_CONTINUE;
 breakStatement: KYW_BREAK;
 
 //FOR loop
 loopDecl : varDcl;
-loopCond : expressionHead;
-endExp: expressionHead;
+loopCond : expression;
+endExp: expression;
 
 forLoop: KYW_FOR PARN_OPN loopDecl EOS loopCond EOS endExp PARN_CLS codeBody;
 
@@ -298,6 +317,8 @@ KYW_ALLOC: 'alloc';
 
 TAG_PRFX: '@';
 
+OP_ASG: '=';
+
 //Unary operators
 UNOP_INC: '++';
 UNOP_DCR: '--';
@@ -306,7 +327,6 @@ LUNOP_B_NOT: '~';
 LUNOP_SIZEOF: 'sizeof';
 LUNOP_ADDR: OP_B_AND;
 
-OP_ASG: '=';
 
 //Binary operators, in (sort of) precedence order
 OP_STAR: '*';
@@ -381,6 +401,8 @@ HEX_STR: HEX_PRFX (Digit | [a-f] | [A-F])+;
 OCT_STR: OCT_PRFX [0-7]+;
 BIN_STR: BIN_PRFX [01]+;
 
+fragment FLOAT_TYPE: 'f' | 'F' | 'd' | 'D';
+FLOAT_STR: INT_STR? '.' INT_STR FLOAT_TYPE?;
 
 //ESC_CHAR: '\'';
 //ESC_STR: '\'';
@@ -405,7 +427,7 @@ TAG: TAG_PRFX ID;
 
 //ID
 ID: Id_start Id_chars*;
-TYPE: ID OP_STAR*; //Force pointer starts to the type
+PTR_ID: ID OP_STAR*; //Force pointer starts to the type
 
 fragment Id_start: ([a-z]|[A-Z]|'_');
 fragment Id_chars: Id_start | Digit;

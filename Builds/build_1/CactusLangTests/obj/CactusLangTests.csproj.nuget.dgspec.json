@@ -111,6 +111,10 @@
         "net8.0": {
           "targetAlias": "net8.0",
           "dependencies": {
+            "JetBrains.Annotations": {
+              "target": "Package",
+              "version": "[2025.1.0-eap1, )"
+            },
             "MSTest.TestAdapter": {
               "target": "Package",
               "version": "[3.1.1, )"

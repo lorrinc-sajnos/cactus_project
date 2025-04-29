@@ -1,11 +1,12 @@
 {
   "version": 2,
-  "dgSpecHash": "0pt6PY2+WTg=",
+  "dgSpecHash": "r/msJ+ViS0Q=",
   "success": true,
   "projectFilePath": "/mnt/warehouse/BME/sem6/onlab/cactus_project/Builds/build_1/CactusLangTests/CactusLangTests.csproj",
   "expectedPackageFiles": [
     "/home/lorinc/.nuget/packages/antlr4.runtime.standard/4.13.1/antlr4.runtime.standard.4.13.1.nupkg.sha512",
     "/home/lorinc/.nuget/packages/coverlet.collector/6.0.0/coverlet.collector.6.0.0.nupkg.sha512",
+    "/home/lorinc/.nuget/packages/jetbrains.annotations/2025.1.0-eap1/jetbrains.annotations.2025.1.0-eap1.nupkg.sha512",
     "/home/lorinc/.nuget/packages/microsoft.codecoverage/17.8.0/microsoft.codecoverage.17.8.0.nupkg.sha512",
     "/home/lorinc/.nuget/packages/microsoft.net.test.sdk/17.8.0/microsoft.net.test.sdk.17.8.0.nupkg.sha512",
     "/home/lorinc/.nuget/packages/microsoft.testplatform.objectmodel/17.8.0/microsoft.testplatform.objectmodel.17.8.0.nupkg.sha512",

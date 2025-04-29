@@ -2,26 +2,30 @@
 
 using Antlr4.Runtime;
 using Antlr4.Runtime.Tree;
+using CactusLang.Model;
+using CactusLang.Model.Codefiles;
+using CactusLang.Model.Types;
 using CactusLang.Semantics;
 using CactusLang.Semantics.Types;
 using CactusLang.Util;
 
-PrimitiveType.InitPrimitives();
-
-Debug.LogLine("Begin parsing");
+CactusLangModel.InitCactusLang();
 
 var filePath = "chilltest.ccts";
-
-var input = File.ReadAllText(filePath);
-
-//Mintaprogram
-var inputStream = new AntlrInputStream(input);
-var lexer = new GrammarLexer(inputStream);
-var tokenStream = new CommonTokenStream(lexer);
-var parser = new GrammarParser(tokenStream);
+var filePath2 = "test2.ccts";
 
 
-SemanticAnalyzer analyzer = new SemanticAnalyzer();
-analyzer.Analyze(parser.codefile());
+Debug.LogLine($"Begin parsing file {filePath}");
+
+CodeFile codeFile = new CodeFile(filePath);
+CodeFile codeFile2 = new CodeFile(filePath2);
+    
+SemanticAnalyzer analyzer = new SemanticAnalyzer(codeFile2);
+analyzer.Analyze();
+analyzer.ErrorHandler.PrintErrors();
+
+//analyzer.Errorhandler
+
+
 Console.WriteLine("Parsing finished");
 //Console.ReadKey();
