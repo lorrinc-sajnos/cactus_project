@@ -17,8 +17,8 @@ var filePath2 = "test2.ccts";
 
 Debug.LogLine($"Begin parsing file {filePath}");
 
-CodeFile codeFile = new CodeFile(filePath);
-CodeFile codeFile2 = new CodeFile(filePath2);
+CodeSourceFile codeFile = new CodeSourceFile(filePath);
+CodeSourceFile codeFile2 = new CodeSourceFile(filePath2);
     
 SemanticAnalyzer analyzer = new SemanticAnalyzer(codeFile2);
 analyzer.Analyze();

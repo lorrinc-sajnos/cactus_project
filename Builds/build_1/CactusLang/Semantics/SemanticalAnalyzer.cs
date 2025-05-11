@@ -2,6 +2,7 @@ using System;
 using Antlr4.Runtime;
 using CactusLang.Model;
 using CactusLang.Model.Codefiles;
+using CactusLang.Model.CodeStructure;
 using CactusLang.Model.Errors;
 using CactusLang.Model.Scopes;
 using CactusLang.Model.Symbols;
@@ -15,7 +16,7 @@ namespace CactusLang.Semantics;
 
 public class SemanticAnalyzer : GrammarBaseVisitor<StatusCode> {
     private readonly GrammarParser _parser;
-    
+    private readonly CodeFile _codeFile;
     private readonly TypeSystem _typeSystem;
     private readonly FileScope _fileScope;
     private readonly ErrorHandler _errorHandler;
@@ -23,13 +24,14 @@ public class SemanticAnalyzer : GrammarBaseVisitor<StatusCode> {
 
     private Scope CurrentScope => _fileScope.CurrentScope;
     
-    public SemanticAnalyzer(CodeFile codeFile) {
+    public SemanticAnalyzer(CodeSourceFile codeFile) {
         //Antlr
         var inputStream = new AntlrInputStream(codeFile.Code);
         var lexer = new GrammarLexer(inputStream);
         var tokenStream = new CommonTokenStream(lexer);
         _parser = new GrammarParser(tokenStream);
         
+        _codeFile = new CodeFile(); 
         
         _errorHandler = new ErrorHandler();
         

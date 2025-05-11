@@ -1,0 +1,9 @@
+using CactusLang.Model.CodeStructure.Expressions;
+
+namespace CactusLang.Model.CodeStructure.Statements;
+
+public class ReturnStatement : Statement {
+    private Expression _expression;
+    
+    public Expression Expression => _expression;
+}

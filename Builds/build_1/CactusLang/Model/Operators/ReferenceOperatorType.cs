@@ -1,5 +1,5 @@
 namespace CactusLang.Model.Operators;
 
-public enum ReferenceOperator {
+public enum ReferenceOperatorType {
     REFERENCE, ADDRESS
 }

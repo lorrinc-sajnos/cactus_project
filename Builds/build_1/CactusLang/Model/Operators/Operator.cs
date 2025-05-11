@@ -20,6 +20,7 @@ public abstract class Operator {
         _id = format;
         Operators.Add(format, this);
     }
+    //protected
     
     public abstract BaseType Evaluate(BaseType lhs, BaseType rhs);
     
@@ -34,8 +35,8 @@ public abstract class Operator {
     public static readonly IntOperator BIT_AND = new("&", OperatorLvl.Bit);
     public static readonly IntOperator BIT_OR = new("|", OperatorLvl.Bit);
     public static readonly IntOperator BIT_XOR = new("^", OperatorLvl.Bit);
-    public static readonly IntOperator BIT_LEFT_SHIFT = new("<<", OperatorLvl.Bit);
-    public static readonly IntOperator BIT_RIGHT_SHIFT = new(">>", OperatorLvl.Bit);
+    public static readonly BitShiftOperator BIT_LEFT_SHIFT = new("<<", OperatorLvl.Bit);
+    public static readonly BitShiftOperator BIT_RIGHT_SHIFT = new(">>", OperatorLvl.Bit);
     //Comparison operator
     public static readonly CompOperator EQ = new("==",OperatorLvl.Comparison);
     public static readonly CompOperator NEQ = new("!=",OperatorLvl.Comparison);
@@ -45,8 +46,7 @@ public abstract class Operator {
     public static readonly CompOperator GR_THAN = new(">",OperatorLvl.Comparison);
     public static readonly CompOperator LS_THAN_EQ = new("<=",OperatorLvl.Comparison);
     public static readonly CompOperator GR_THAN_EQ = new(">=",OperatorLvl.Comparison);
-    
-    
-    
-    
+
+
+
 }

@@ -10,6 +10,7 @@ public class Scope {
     private OrderedDictionary<string, VariableSymbol> _variables;
 
     protected Scope() : this(null) { }
+
     private Scope(Scope parent) {
         _parent = parent;
         _children = new();
@@ -25,10 +26,11 @@ public class Scope {
     }
 
     public Scope Parent => _parent;
+
     public virtual VariableSymbol? GetVariable(string id) {
-        if(_variables.ContainsKey(id)) 
+        if (_variables.ContainsKey(id))
             return _variables[id];
-        if (_parent != null) 
+        if (_parent != null)
             return _parent.GetVariable(id);
         return null;
         //throw new Exception($"Variable {id} does not exist.");
@@ -40,15 +42,19 @@ public class Scope {
     /// <param name="variable"></param>
     /// <returns>True, if a new variable was added.</returns>
     public bool AddVariable(VariableSymbol variable) {
-        if(_variables.ContainsKey(variable.Id)) {
+        if (_variables.ContainsKey(variable.Id)) {
             return false;
         }
-        
+
         _variables.Add(variable.Id, variable);
         return true;
     }
-    
+
     public virtual FunctionSymbol? GetMatchingFunction(FuncId id) {
         return _parent.GetMatchingFunction(id);
+    }
+
+    public virtual int GetScopeDepth() {
+        return _parent.GetScopeDepth() + 1;
     }
 }

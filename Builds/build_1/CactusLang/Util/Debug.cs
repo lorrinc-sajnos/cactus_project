@@ -5,7 +5,7 @@ namespace CactusLang.Util;
 
 public class Debug {
     
-    public const bool DEBUG = true;
+    public const bool DEBUG = false;
 
 
     public static void Log(string msg) {

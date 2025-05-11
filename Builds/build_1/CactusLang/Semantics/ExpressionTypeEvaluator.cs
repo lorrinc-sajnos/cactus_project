@@ -202,7 +202,7 @@ public class ExpressionTypeEvaluator {
                     if (value == null)
                         return _errorHandler.PostError(CctsError.LITERAL_ERROR.CompTime(literalCtx, literalTxt));
                     
-                    return IntegerParser.GetType(value.Value);
+                    return new LiteralIntegerType(value.Value);
                 }
                 catch (FormatException) {
                     return _errorHandler.PostError(CctsError.LITERAL_ERROR.CompTime(literalCtx, literalTxt));
@@ -294,15 +294,15 @@ public class ExpressionTypeEvaluator {
     }
 
 
-    private ReferenceOperator GetRefOp(GP.AccOpContext ctx) {
+    private ReferenceOperatorType GetRefOp(GP.AccOpContext ctx) {
         string txt = ctx.GetText();
         if (txt == ".")
-            return ReferenceOperator.REFERENCE;
-        return ReferenceOperator.ADDRESS;
+            return ReferenceOperatorType.REFERENCE;
+        return ReferenceOperatorType.ADDRESS;
     }
     
-    private StructType? GetRefObjType(BaseType objType, ReferenceOperator refOp) {
-        if (refOp == ReferenceOperator.REFERENCE) {
+    private StructType? GetRefObjType(BaseType objType, ReferenceOperatorType refOp) {
+        if (refOp == ReferenceOperatorType.REFERENCE) {
             if (objType is not PointerType) {
                 return null;
             }

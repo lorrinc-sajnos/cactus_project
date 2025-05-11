@@ -39,4 +39,6 @@ public class FileScope : Scope {
     public override FunctionSymbol? GetMatchingFunction(FuncId id) => _fileFunctionStore.GetMatchingFunction(id);
     
     public bool AddFunction(FunctionSymbol func) => _fileFunctionStore.AddFunction(func);
+
+    public override int GetScopeDepth() => 0;
 }

@@ -12,7 +12,7 @@ fileStatement
 	| (fileVarDcl EOS)
 	| (funcDcl)
 	| (structDcl)
-	| (classDcl)
+	//| (classDcl)
 	;
 
 preprocessor_stm: (ppc__Include);
@@ -141,7 +141,8 @@ opLeftUn
     | LUNOP_B_NOT
     | LUNOP_L_NOT
     | LUNOP_SIZEOF
-    | LUNOP_ADDR
+    | OP_B_AND //Adress operator
+    | OP_STAR //Dereference operator
     | explicitCast
     ;
 
@@ -155,6 +156,7 @@ primaryExp
     //value primary expression
     : primaryExpVal opRightUn?
     | opLeftUn primaryExpVal
+    //| memoryAccesExp
     //referrences
     | primaryExp objFuncCall
     | primaryExp objFieldRef
@@ -177,6 +179,7 @@ primaryExpVal
     | literalExp
     | ppc__funcCall
     ;
+
 
 
 accOp: OP_ACC | OP_REF;
@@ -325,7 +328,6 @@ UNOP_DCR: '--';
 LUNOP_L_NOT: '!';
 LUNOP_B_NOT: '~';
 LUNOP_SIZEOF: 'sizeof';
-LUNOP_ADDR: OP_B_AND;
 
 
 //Binary operators, in (sort of) precedence order
