@@ -4,15 +4,16 @@ using CactusLang.Model.Types;
 namespace CactusLang.Model.Operators.ObjectRefference;
 
 public class ObjectFieldRef : UnaryOp {
-    private StructType _struct;
-    //private 
-    
-    public ObjectFieldRef(StructType refferedType, string fieldName) : base(Side.RIGHT, fieldName) {
-        _struct  = refferedType;
-        
+    private FileStruct _struct;
+    public FileStruct Struct => _struct;
+
+    private StructField _field;
+    public StructField Field => _field;
+
+    public ObjectFieldRef(FileStruct referedStruct, string fieldName) : base(Side.RIGHT, fieldName) {
+        _struct = referedStruct;
+        _field = _struct.Fields.GetField(fieldName);
     }
 
-    public override BaseType Evaluate(BaseType val) {
-        
-    }
+    public override BaseType Evaluate(BaseType val) => _field.Symbol.Type;
 }

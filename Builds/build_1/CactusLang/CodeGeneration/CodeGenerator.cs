@@ -1,10 +1,13 @@
+using CactusLang.Model.CodeStructure;
+using CactusLang.Model.CodeStructure.File;
+using CactusLang.Model.Visitors;
+
 namespace CactusLang.CodeGeneration;
 
-public class CodeGenerator {
-    private string _fileName;
-    private StreamWriter _streamWriter;
-
-    public CodeGenerator(string fileName) {
-        _fileName = fileName;
+public class CodeGenerator : CodeModelVisitor {
+    public CodeGenerator(CodeFile  file) : base(file) {
+        
     }
+    
+    
 }

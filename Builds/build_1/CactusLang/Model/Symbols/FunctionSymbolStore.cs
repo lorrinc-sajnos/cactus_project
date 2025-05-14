@@ -1,15 +1,15 @@
-using CactusLang.Model.Symbols;
 using CactusLang.Util;
 
-namespace CactusLang.Model;
+namespace CactusLang.Model.Symbols;
 
-public class FunctionStore<T> where T : ModelFunction {
-    private readonly OrderedDictionary<FuncId, T> _functions;
-    public FunctionStore() {
-        _functions = new OrderedDictionary<FuncId, T>();
+public class FunctionSymbolStore {
+    private readonly OrderedDictionary<FuncId, FunctionSymbol> _functions;
+
+    public FunctionSymbolStore() {
+        _functions = new OrderedDictionary<FuncId, FunctionSymbol>();
     }
 
-    public T? GetExactFunction(FuncId id) {
+    public FunctionSymbol? GetExactFunction(FuncId id) {
         if (!_functions.ContainsKey(id)) {
             //throw new Exception($"Function {id} does not exist.");
 
@@ -23,7 +23,7 @@ public class FunctionStore<T> where T : ModelFunction {
     public bool ContainsExactFunction(FuncId id) => _functions.ContainsKey(id);
     
     
-    public T? GetMatchingFunction(FuncId id) {
+    public FunctionSymbol? GetMatchingFunction(FuncId id) {
         if (ContainsExactFunction(id))
             return _functions[id];
 
@@ -34,13 +34,13 @@ public class FunctionStore<T> where T : ModelFunction {
 
         return _functions[guessedId.Value];
     }
-    
     public bool ContainsMatchingFunction(FuncId id) {
         if (ContainsExactFunction(id)) return true;
 
         FuncId? guessedId = GetMatchingId(id);
         return guessedId != null;
     }
+
     public FuncId? GetMatchingId(FuncId id) {
         if (_functions.ContainsKey(id))
             return id;
@@ -63,8 +63,8 @@ public class FunctionStore<T> where T : ModelFunction {
         return null;
     }
 
-    public bool AddFunction(T variable) {
-        if (_functions.ContainsKey(variable.FuncId)) {
+    public bool AddFunction(FunctionSymbol variable) {
+        if (_functions.ContainsKey(variable.Id)) {
             //throw new Exception($"Function {variable.Name} already exists");
             return false;
         }
@@ -79,9 +79,9 @@ public class FunctionStore<T> where T : ModelFunction {
             return false;
 
 
-        _functions.Add(variable.FuncId, variable);
+        _functions.Add(variable.Id, variable);
         return true;
     }
     
-    public List<T> GetFunctions() => _functions.Values.ToList();
+    public List<FunctionSymbol> GetFunctions() => _functions.Values.ToList();
 }

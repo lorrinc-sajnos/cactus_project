@@ -12,13 +12,13 @@ using GP = GrammarParser;
 
 namespace CactusLang.Semantics;
 
-public class ExpressionTypeEvaluator {
+public class ExpressionFactory {
     private readonly ErrorHandler _errorHandler;
     private readonly TypeSystem _typeSystem;
     private readonly Scope _scope;
     private readonly GrammarParser.ExpressionContext _startExpression;
 
-    public ExpressionTypeEvaluator(ErrorHandler errorHandler, TypeSystem typeSystem, Scope scope,
+    public ExpressionFactory(ErrorHandler errorHandler, TypeSystem typeSystem, Scope scope,
         GP.ExpressionContext expNode) {
         _errorHandler = errorHandler;
         _typeSystem = typeSystem;

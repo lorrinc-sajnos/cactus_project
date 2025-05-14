@@ -9,4 +9,6 @@ public class CodeBlock {
     
     public Scope Scope => _scope;
     public List<Statement> Statements => _statements;
+    
+    public void  AddStatement(Statement statement) => _statements.Add(statement);
 }

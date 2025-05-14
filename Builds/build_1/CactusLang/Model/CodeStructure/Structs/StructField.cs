@@ -1,12 +1,13 @@
+using CactusLang.Model.CodeStructure.File;
 using CactusLang.Model.Symbols;
 
 namespace CactusLang.Model.CodeStructure;
 
-public class StructField {
-    private FileStruct _parent;
-    private VariableSymbol _variable;
-    
+public class StructField : ModelField {
+    protected FileStruct _parent;
+
+    public StructField(VariableSymbol symbol, FileStruct parent) : base(symbol) {
+        _parent = parent;
+    }
     public FileStruct Parent => _parent;
-    public string Name => _variable.Name;
-    public VariableSymbol Variable => _variable;
 }

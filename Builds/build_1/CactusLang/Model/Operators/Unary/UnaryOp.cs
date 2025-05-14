@@ -31,15 +31,15 @@ public abstract class UnaryOp {
 
     public abstract BaseType Evaluate(BaseType val);
 
-    public static readonly CheckUnaryOp PRE_INC = new CheckUnaryOp(Side.LEFT, "++", t => t.IsNumber);
-    public static readonly CheckUnaryOp PRE_DCR = new CheckUnaryOp(Side.LEFT, "--", t => t.IsNumber);
-    public static readonly CheckUnaryOp POST_INC = new CheckUnaryOp(Side.RIGHT, "++", t => t.IsNumber);
-    public static readonly CheckUnaryOp POST_DCR = new CheckUnaryOp(Side.RIGHT, "--", t => t.IsNumber);
+    public static readonly BaseUnaryOp PRE_INC = new BaseUnaryOp(Side.LEFT, "++", t => t.IsNumber);
+    public static readonly BaseUnaryOp PRE_DCR = new BaseUnaryOp(Side.LEFT, "--", t => t.IsNumber);
+    public static readonly BaseUnaryOp POST_INC = new BaseUnaryOp(Side.RIGHT, "++", t => t.IsNumber);
+    public static readonly BaseUnaryOp POST_DCR = new BaseUnaryOp(Side.RIGHT, "--", t => t.IsNumber);
 
-    public static readonly CheckUnaryOp BOOL_NOT =
-        new CheckUnaryOp(Side.LEFT, "!", t => t.Kind == PrimitiveType.Type.Bool);
+    public static readonly BaseUnaryOp BOOL_NOT =
+        new BaseUnaryOp(Side.LEFT, "!", t => t.Kind == PrimitiveType.Type.Bool);
 
-    public static readonly CheckUnaryOp BIT_NOT = new CheckUnaryOp(Side.LEFT, "^", t => t.IsInteger);
+    public static readonly BaseUnaryOp BIT_NOT = new BaseUnaryOp(Side.LEFT, "^", t => t.IsInteger);
 
     public static readonly AddressOperator ADDRESS = new AddressOperator();
     public static readonly DereferenceOperator DEREFERENCE = new DereferenceOperator();

@@ -9,24 +9,24 @@ public class StructType_OLD : BaseType {
     private readonly string _id;
     public override string Name => _id;
     private OrderedDictionary<string, VariableSymbol> _variables;
-    private FunctionStore _instanceFunctions;
+    private FunctionSymbolStore _instanceFunctionsSymbol;
 
 
     public StructType_OLD(string name) {
         _id = name;
         _variables = new();
-        _instanceFunctions = new();
+        _instanceFunctionsSymbol = new();
     }
 
     public void AddVariable(VariableSymbol variable) => _variables.Add(new(variable.Name), variable); //TODO kiegesziteni
-    public void AddInstanceFunction(FunctionSymbol function) => _instanceFunctions.AddFunction(function);
+    public void AddInstanceFunction(FunctionSymbol function) => _instanceFunctionsSymbol.AddFunction(function);
 
     public List<VariableSymbol> GetVariables() {
         return _variables.Values.ToList();
     }
 
-    public bool ContainsMatchingFunction(FuncId id) => _instanceFunctions.ContainsMatchingFunction(id);
-    public FunctionSymbol? GetMatchingFunction(FuncId id) => _instanceFunctions.GetMatchingFunction(id);
+    public bool ContainsMatchingFunction(FuncId id) => _instanceFunctionsSymbol.ContainsMatchingFunction(id);
+    public FunctionSymbol? GetMatchingFunction(FuncId id) => _instanceFunctionsSymbol.GetMatchingFunction(id);
 
     public VariableSymbol? GetField(string name) {
         if  (_variables.ContainsKey(name)) { return _variables[name]; }
