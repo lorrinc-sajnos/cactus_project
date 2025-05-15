@@ -22,6 +22,9 @@ public class FunctionSymbol  {
         Id = new FuncId(Name, parameterTypes);
     }
 
-    public void AddParameter(VariableSymbol parameter) => _parameters.Add(parameter.Name, parameter);
+    public void AddParameter(VariableSymbol parameter) {
+        _parameters.Add(parameter.Name, parameter);
+        Id.AddParam(parameter.Type);
+    }
     public List<VariableSymbol> GetParameters() => _parameters.Values.ToList();
 }

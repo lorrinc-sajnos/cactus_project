@@ -260,6 +260,12 @@ public interface IGrammarVisitor<Result> : IParseTreeVisitor<Result> {
 	/// <return>The visitor result.</return>
 	Result VisitOpRightUn([NotNull] GrammarParser.OpRightUnContext context);
 	/// <summary>
+	/// Visit a parse tree produced by <see cref="GrammarParser.opAssignmentLvl"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	/// <return>The visitor result.</return>
+	Result VisitOpAssignmentLvl([NotNull] GrammarParser.OpAssignmentLvlContext context);
+	/// <summary>
 	/// Visit a parse tree produced by <see cref="GrammarParser.primaryExp"/>.
 	/// </summary>
 	/// <param name="context">The parse tree.</param>
@@ -319,12 +325,6 @@ public interface IGrammarVisitor<Result> : IParseTreeVisitor<Result> {
 	/// <param name="context">The parse tree.</param>
 	/// <return>The visitor result.</return>
 	Result VisitExplicitCast([NotNull] GrammarParser.ExplicitCastContext context);
-	/// <summary>
-	/// Visit a parse tree produced by <see cref="GrammarParser.assignment"/>.
-	/// </summary>
-	/// <param name="context">The parse tree.</param>
-	/// <return>The visitor result.</return>
-	Result VisitAssignment([NotNull] GrammarParser.AssignmentContext context);
 	/// <summary>
 	/// Visit a parse tree produced by <see cref="GrammarParser.funcCall"/>.
 	/// </summary>

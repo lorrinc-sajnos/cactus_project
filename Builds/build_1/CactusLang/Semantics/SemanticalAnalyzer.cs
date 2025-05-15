@@ -3,6 +3,8 @@ using Antlr4.Runtime;
 using CactusLang.Model;
 using CactusLang.Model.Codefiles;
 using CactusLang.Model.CodeStructure;
+using CactusLang.Model.CodeStructure.File;
+using CactusLang.Model.CodeStructure.Statements;
 using CactusLang.Model.Errors;
 using CactusLang.Model.Scopes;
 using CactusLang.Model.Symbols;
@@ -19,23 +21,27 @@ public class SemanticAnalyzer : GrammarBaseVisitor<StatusCode> {
     private readonly TypeSystem _typeSystem;
     private readonly FileScope _fileScope;
     private readonly ErrorHandler _errorHandler;
+    private readonly CodeFile _codeFile;
     public ErrorHandler ErrorHandler => _errorHandler;
 
     private Scope CurrentScope => _fileScope.CurrentScope;
+    private CodeBlock _currentBlock;
+    
+    
 
-    public SemanticAnalyzer(CodeSourceFile codeFile) {
+    public SemanticAnalyzer(CodeSourceFile sourceFile) {
         //Antlr
-        var inputStream = new AntlrInputStream(codeFile.Code);
+        var inputStream = new AntlrInputStream(sourceFile.Code);
         var lexer = new GrammarLexer(inputStream);
         var tokenStream = new CommonTokenStream(lexer);
         _parser = new GrammarParser(tokenStream);
-
+        _codeFile = new CodeFile(sourceFile);
 
         _errorHandler = new ErrorHandler();
 
         _parser.AddErrorListener(_errorHandler.ErrorListener);
 
-        _fileScope = new FileScope(_errorHandler);
+        _fileScope = new FileScope(_codeFile, _errorHandler);
         _typeSystem = new TypeSystem(_errorHandler);
     }
 
@@ -44,7 +50,7 @@ public class SemanticAnalyzer : GrammarBaseVisitor<StatusCode> {
 
         Debug.LogLine($"Start index:\t{ctx.Start.StartIndex}");
         Debug.LogLine($"Stop index:\t{ctx.Stop.StopIndex}");
-
+        
         RegisterIncludes(ctx);
         RegisterStructs(ctx);
         //After registering structs, the Type system is completed, can begin registering functions
@@ -69,9 +75,11 @@ public class SemanticAnalyzer : GrammarBaseVisitor<StatusCode> {
         foreach (var statement in statements) {
             if (statement.structDcl() != null) {
                 var structDcl = statement.structDcl();
-
+                string structName = structDcl.structName().GetText();
+                FileStruct fileStruct = new FileStruct(structName, _codeFile);
                 //Debug.LogLine($"Struct {structName} declared");
-                _typeSystem.AddStruct(structDcl); //TODO err Already defined?
+                _codeFile.AddStruct(fileStruct);
+                _typeSystem.AddStruct(structDcl, fileStruct); //TODO err Already defined?
             }
         }
 
@@ -79,20 +87,20 @@ public class SemanticAnalyzer : GrammarBaseVisitor<StatusCode> {
         foreach (var statement in statements) {
             if (statement.structDcl() != null) {
                 var structDcl = statement.structDcl();
-                StructType structType = _typeSystem.GetStruct(structDcl);
-                Debug.LogLine($"@Struct  {structType.Name}:");
+                FileStruct fileStruct = _typeSystem.GetStruct(structDcl);
+                Debug.LogLine($"@Struct  {fileStruct.Name}:");
 
                 var structBody = structDcl.structBody();
 
                 //Instance Functions
                 foreach (var funcDec in structBody.funcDcl()) {
-                    RegisterStructFuncDcl(structType, funcDec);
+                    RegisterStructFuncDcl(fileStruct, funcDec);
                     Debug.LogLine($"\tAdded function: {funcDec.funcDclHeader().GetText()}");
                 }
 
                 //Fields
                 foreach (var fieldDcl in structBody.fieldDcl()) {
-                    RegisterStructFieldDcl(structType, fieldDcl);
+                    RegisterStructFieldDcl(fileStruct, fieldDcl);
                     Debug.LogLine($"\tAdded field: {fieldDcl.GetText()}");
                 }
             }
@@ -126,9 +134,10 @@ public class SemanticAnalyzer : GrammarBaseVisitor<StatusCode> {
             funcSymb.AddParameter(new VariableSymbol(pType, pName));
         }
 
-        var result = _fileScope.AddFunction(funcSymb);
+        FileFunction fileFunc = new FileFunction(funcSymb, _codeFile);
+        var result = _codeFile.Functions.AddFunction(fileFunc);
         if (result == false) {
-            _errorHandler.PostError(CctsError.OVERLOAD_DOESNT_MATCH_RET_TYPE.CompTime(header.funcName()));
+            _errorHandler.ErrorInExpression(CctsError.OVERLOAD_DOESNT_MATCH_RET_TYPE.CompTime(header.funcName()));
         }
 
         Debug.LogLine($"Func {funcSymb.Name} declared.");
@@ -137,10 +146,14 @@ public class SemanticAnalyzer : GrammarBaseVisitor<StatusCode> {
     private void RegisterFileVarDcl(GP.FileVarDclContext ctx) {
         var varCtx = ctx.varDcl();
 
-        var varSymbols = SemanticUtil.GetVarSymbols(varCtx,_typeSystem);
+        var varSymbols = SemanticUtil.GetVarSymbols(varCtx, _typeSystem);
 
         foreach (VariableSymbol symb in varSymbols) {
+            FileField field = new FileField(symb, _codeFile);
+
             var result = _fileScope.AddVariable(symb);
+            _codeFile.Fields.AddField(field);
+
             if (!result)
                 _errorHandler.AddError(CctsError.ALREADY_DEFINED.CompTime(ctx));
 
@@ -149,7 +162,7 @@ public class SemanticAnalyzer : GrammarBaseVisitor<StatusCode> {
     }
 
 
-    private void RegisterStructFuncDcl(StructType structType, GP.FuncDclContext ctx) {
+    private void RegisterStructFuncDcl(FileStruct fileStruct, GP.FuncDclContext ctx) {
         var header = ctx.funcDclHeader();
         string funcName = header.funcName().GetText();
         BaseType returnType = _typeSystem.Get(header.returnType().type());
@@ -161,10 +174,11 @@ public class SemanticAnalyzer : GrammarBaseVisitor<StatusCode> {
             funcSymb.AddParameter(new VariableSymbol(pType, pName));
         }
 
-        structType.AddInstanceFunction(funcSymb);
+        StructFunction structFunc = new StructFunction(funcSymb, fileStruct);
+        fileStruct.Functions.AddFunction(structFunc);
     }
 
-    private void RegisterStructFieldDcl(StructType structType, GP.FieldDclContext ctx) {
+    private void RegisterStructFieldDcl(FileStruct fileStruct, GP.FieldDclContext ctx) {
         var varCtx = ctx.varDcl();
 
         List<VariableSymbol> varSymbols = new List<VariableSymbol>();
@@ -174,7 +188,7 @@ public class SemanticAnalyzer : GrammarBaseVisitor<StatusCode> {
         }
 
         foreach (VariableSymbol symb in varSymbols) {
-            structType.AddVariable(symb);
+            fileStruct.Fields.AddField(new StructField(symb, fileStruct));
             Debug.LogLine($"\tAdded: {symb.Type.Name}   {symb.Name}");
         }
     }
@@ -182,8 +196,9 @@ public class SemanticAnalyzer : GrammarBaseVisitor<StatusCode> {
     #endregion
 
     private void AnalyzeCodeFile(GP.CodefileContext ctx) {
+        
         foreach (var statement in ctx.fileStatement()) {
-            //Global function bodies
+            //File function bodies
             if (statement.funcDcl() != null) {
                 var funcDcl = statement.funcDcl();
 
@@ -192,7 +207,7 @@ public class SemanticAnalyzer : GrammarBaseVisitor<StatusCode> {
             else //Structs function bodies
             if (statement.structDcl() != null) {
                 var structDcl = statement.structDcl();
-                StructType structType = _typeSystem.GetStruct(structDcl);
+                FileStruct structType = _typeSystem.GetStruct(structDcl);
                 Debug.LogLine($"\n---@Struct {structType.Name} ENTERED");
 
                 //Loop through the functions of the struct
@@ -208,6 +223,8 @@ public class SemanticAnalyzer : GrammarBaseVisitor<StatusCode> {
                 Debug.LogLine();
             }
         }
+        
+        
     }
 
     private void ProcessFunctionBody(GP.FuncDclContext ctx) {
@@ -222,8 +239,9 @@ public class SemanticAnalyzer : GrammarBaseVisitor<StatusCode> {
         }
         //Handle the most common case:
 
+        string debugtxt = ctx.GetText();
 
-        FunctionSymbol? func =
+        ModelFunction? func =
             CurrentScope.GetMatchingFunction(
                 SemanticUtil.GetIdFromDclCtx(ctx.funcDclHeader(), _typeSystem)
             ); //Should be always non-null
@@ -233,12 +251,14 @@ public class SemanticAnalyzer : GrammarBaseVisitor<StatusCode> {
         Debug.LogLine($"FUNC {ctx.funcDclHeader().GetText()} ENTERED");
         //_fileScope.StepIn();
         //Add the parameters to the current scope
-        foreach (var param in func.GetParameters()) {
+        foreach (var param in func!.Symbol.GetParameters()) {
             CurrentScope.AddVariable(param); //In theory, scope is empty at this point, thus an error cannot occur.
         }
 
-        VisitCodeBody(codeBody);
 
+        _currentBlock = func.CodeBody;
+        VisitCodeBody(codeBody);
+        
         //_fileScope.StepOut();
 
 
@@ -257,7 +277,7 @@ public class SemanticAnalyzer : GrammarBaseVisitor<StatusCode> {
 
     #region Statement Handling
 
-    private ExpressionFactory CreateValidator(GP.ExpressionContext node) =>
+    private ExpressionFactory CreateFactory(GP.ExpressionContext node) =>
         new(_errorHandler, _typeSystem, _fileScope.CurrentScope, node);
 
 
@@ -268,32 +288,44 @@ public class SemanticAnalyzer : GrammarBaseVisitor<StatusCode> {
 
     public override StatusCode VisitVarDcl(GrammarParser.VarDclContext ctx) {
         BaseType dclType = _typeSystem.Get(ctx.type());
-
+        VarDclStatement varDclStatement = new();
+        
         foreach (var dclBody in ctx.varDclBody()) {
             var varSymbol = new VariableSymbol(dclType, dclBody.varName().GetText());
+            
             //Typecheck:
             if (dclBody.expression() != null) {
-                var asgExpr = dclBody.expression();
-                var validator = CreateValidator(asgExpr);
-                var asgType = validator.EvaluateType();
+                var asgExprCtx = dclBody.expression();
+                var factory = CreateFactory(asgExprCtx);
+                var asgExpression = factory.EvaluateExpression();
 
 
-                if (!asgType.CanBeUsedAs(dclType)) {
-                    _errorHandler.PostError(CctsError.TYPE_MISMATCH.CompTime(ctx, asgType, dclType));
+                if (!asgExpression.GetResultType().CanBeUsedAs(dclType)) {
+                    _errorHandler.ErrorInExpression(CctsError.TYPE_MISMATCH.CompTime(ctx, asgExpression.GetResultType(), dclType));
+                    //continue;
                 }
+                varDclStatement.AddBody(new VarDclStatement.Body(varSymbol, asgExpression));
             }
-
+            else {
+                varDclStatement.AddBody(new VarDclStatement.Body(varSymbol));
+            }
+            
             _fileScope.CurrentScope.AddVariable(varSymbol);
         }
-
+        
+        _currentBlock.AddStatement(varDclStatement);
         return base.VisitVarDcl(ctx);
     }
 
-    public override StatusCode VisitExpression(GrammarParser.ExpressionContext ctx) {
-        var validator = CreateValidator(ctx);
-        validator.EvaluateType();
+    public override StatusCode VisitExpressionStatement(GrammarParser.ExpressionStatementContext ctx) {
+        var validator = CreateFactory(ctx.expression());
+        var expression = validator.EvaluateExpression();
+        
+        
+        var res = base.VisitExpressionStatement(ctx);
 
-        return base.VisitExpression(ctx);
+        _currentBlock.AddStatement(new ExpressionStatement(expression));
+        return res;
     }
 
     #endregion

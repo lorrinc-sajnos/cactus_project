@@ -6,6 +6,7 @@ using CactusLang.Model.CodeStructure.File;
 using CactusLang.Model.CodeStructure.Statements;
 using CactusLang.Model.Operators;
 using CactusLang.Model.Operators.ObjectRefference;
+using ObjectFieldRef = CactusLang.Model.Operators.ObjectRefference.ObjectFieldRef;
 
 namespace CactusLang.Model.Visitors;
 
@@ -74,7 +75,7 @@ public class CodeModelVisitor {
         return GetResult(results);
     }
 
-    protected virtual VisitStatus VisitStructField(StructField structField) {
+    protected virtual VisitStatus VisitStructField(StructField? structField) {
         //Nothing to visit!
         return VisitStatus.SUCCESS;
     }

@@ -5,9 +5,11 @@ using CactusLang.Model.Types;
 namespace CactusLang.Model.CodeStructure.Statements;
 
 public class VarDclStatement : Statement {
-    public BaseType VarType { get; private set; }
+    public BaseType VarType => _variables.First().Variable.Type;
 
-    private List<Body> _variables;
+    private List<Body> _variables = new();
+    
+    public void AddBody(Body body) => _variables.Add(body);
     
     public List<Body> GetBodies() => _variables;
 
@@ -18,5 +20,11 @@ public class VarDclStatement : Statement {
         Expression? _expression;
         public bool HasValue => _expression != null;
         public Expression? Value => _expression;
+
+        public Body(VariableSymbol variable, Expression expression) {
+            _variable = variable;
+            _expression = expression;
+        }
+        public Body(VariableSymbol variable) :this(variable, null) { }
     }
 }

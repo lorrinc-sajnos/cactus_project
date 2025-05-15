@@ -11,16 +11,14 @@ using CactusLang.Util;
 
 CactusLangModel.InitCactusLang();
 
-var filePath = "chilltest.ccts";
-var filePath2 = "test2.ccts";
+var filePath = "test/test3.ccts";
 
 
 Debug.LogLine($"Begin parsing file {filePath}");
 
 CodeSourceFile codeFile = new CodeSourceFile(filePath);
-CodeSourceFile codeFile2 = new CodeSourceFile(filePath2);
     
-SemanticAnalyzer analyzer = new SemanticAnalyzer(codeFile2);
+SemanticAnalyzer analyzer = new SemanticAnalyzer(codeFile);
 analyzer.Analyze();
 analyzer.ErrorHandler.PrintErrors();
 

@@ -1,0 +1,9 @@
+using CactusLang.Model.Types;
+
+namespace CactusLang.Model.CodeStructure.Expressions.PrimaryExpressions.LiteralExpressions;
+
+public class VoidLiteral :  LiteralExpression {
+
+    public VoidLiteral() { }
+    public override BaseType GetResultType() => PrimitiveType.VOID;
+}

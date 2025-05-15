@@ -4,7 +4,7 @@ using CactusLang.Semantics.Types;
 namespace CactusLang.Model.Operators;
 
 public abstract class Operator {
-    public enum OperatorLvl { Mult, Add, Bit, Comparison }
+    public enum OperatorLvl { Mult, Add, Bit, Comparison, Assignment }
     public OperatorLvl Level { get; private set; }
 
     private string _id;
@@ -46,6 +46,8 @@ public abstract class Operator {
     public static readonly CompOperator GR_THAN = new(">",OperatorLvl.Comparison);
     public static readonly CompOperator LS_THAN_EQ = new("<=",OperatorLvl.Comparison);
     public static readonly CompOperator GR_THAN_EQ = new(">=",OperatorLvl.Comparison);
+
+    public static readonly AssignmentOperator ASG = new("=");
 
 
 

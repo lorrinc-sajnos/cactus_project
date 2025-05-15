@@ -1,3 +1,5 @@
+using CactusLang.Model.CodeStructure;
+using CactusLang.Model.CodeStructure.File;
 using CactusLang.Model.Symbols;
 using CactusLang.Model.Types;
 using CactusLang.Semantics.Types;
@@ -5,25 +7,25 @@ using CactusLang.Semantics.Types;
 namespace CactusLang.Model.Scopes;
 
 public class StructFuncScope : Scope {
-    private StructType _structType;
+    private FileStruct _fileStruct;
     private VariableSymbol _thisPtr;
 
-    public StructFuncScope(StructType structType) {
-        _structType = structType;
-        _thisPtr = new VariableSymbol(_structType.GetPointer(), "this");
+    public StructFuncScope(FileStruct fileStruct) {
+        _fileStruct = fileStruct;
+        _thisPtr = new VariableSymbol(_fileStruct.StructType.GetPointer(), "this");
 
         InitVariables();
     }
 
     private void InitVariables() {
-        foreach (var varSymbol in _structType.GetVariables()) {
-            var result = this.AddVariable(varSymbol);
+        foreach (var varSymbol in _fileStruct.Fields.GetFields()) {
+            var result = this.AddVariable(varSymbol.Symbol);
         }
     }
 
-    public override FunctionSymbol? GetMatchingFunction(FuncId id) {
-        if(_structType.ContainsMatchingFunction(id))
-            return _structType.GetMatchingFunction(id);
+    public override ModelFunction? GetMatchingFunction(FuncId id) {
+        if(_fileStruct.Functions.ContainsMatchingFunction(id))
+            return _fileStruct.Functions.GetMatchingFunction(id);
         
         return base.GetMatchingFunction(id);
     }

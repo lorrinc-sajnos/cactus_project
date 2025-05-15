@@ -11,7 +11,7 @@ public class FieldStore<T> where T : ModelField {
         _fields = new OrderedDictionary<string, T>();
     }
 
-    public T GetField(string name) => _fields[name];
+    public T? GetField(string name) => _fields.ContainsKey(name) ? _fields[name] : null;
 
     public void AddField(T field) => _fields.Add(field.Name, field);
 

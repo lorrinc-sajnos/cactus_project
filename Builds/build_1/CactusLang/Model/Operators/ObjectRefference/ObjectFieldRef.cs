@@ -10,9 +10,9 @@ public class ObjectFieldRef : UnaryOp {
     private StructField _field;
     public StructField Field => _field;
 
-    public ObjectFieldRef(FileStruct referedStruct, string fieldName) : base(Side.RIGHT, fieldName) {
+    public ObjectFieldRef(FileStruct referedStruct, StructField field) : base(Side.RIGHT, field.Name) {
         _struct = referedStruct;
-        _field = _struct.Fields.GetField(fieldName);
+        _field = field;
     }
 
     public override BaseType Evaluate(BaseType val) => _field.Symbol.Type;

@@ -1,7 +1,13 @@
 using System.Numerics;
-using System.Reflection.Metadata;
+using CactusLang.Model;
+using CactusLang.Model.CodeStructure;
+using CactusLang.Model.CodeStructure.Expressions;
+using CactusLang.Model.CodeStructure.Expressions.PrimaryExpressions;
+using CactusLang.Model.CodeStructure.Expressions.PrimaryExpressions.LiteralExpressions;
+using CactusLang.Model.CodeStructure.Expressions.PrimaryExpressions.ObjectReference;
 using CactusLang.Model.Errors;
 using CactusLang.Model.Operators;
+using CactusLang.Model.Operators.ObjectRefference;
 using CactusLang.Model.Scopes;
 using CactusLang.Model.Symbols;
 using CactusLang.Model.Types;
@@ -12,6 +18,7 @@ using GP = GrammarParser;
 
 namespace CactusLang.Semantics;
 
+//*
 public class ExpressionFactory {
     private readonly ErrorHandler _errorHandler;
     private readonly TypeSystem _typeSystem;
@@ -26,14 +33,14 @@ public class ExpressionFactory {
         _startExpression = expNode;
     }
 
-    public BaseType EvaluateType() {
-        return EvaluateExpression(_startExpression);
+    public Expression EvaluateExpression() {
+        return EvaluateExpressionCtx(_startExpression);
     }
 
-    private BaseType EvaluateExpression(GP.ExpressionContext ctx) {
+    private Expression EvaluateExpressionCtx(GP.ExpressionContext ctx) {
         //Primary Expression
         if (ctx.primaryExp() != null) {
-            return GetPrimaryExpType(ctx.primaryExp());
+            return GetPrimaryExp(ctx.primaryExp());
         }
 
         //If not, then evaluate left and right expression
@@ -45,8 +52,8 @@ public class ExpressionFactory {
         var leftVar = operands[0];
         var rightVar = operands[1];
 
-        BaseType leftType = EvaluateExpression(leftVar);
-        BaseType rightType = EvaluateExpression(rightVar);
+        Expression leftExp = EvaluateExpressionCtx(leftVar);
+        Expression rightExp = EvaluateExpressionCtx(rightVar);
 
         string operatorStr = "";
 
@@ -55,125 +62,151 @@ public class ExpressionFactory {
 
         var nodeOperator = Operator.GetById(operatorStr);
 
-        BaseType resultType = nodeOperator.Evaluate(leftType, rightType);
+        //Handle assignment differently
+        if (nodeOperator.Level == Operator.OperatorLvl.Assignment)
+            return HandleAssignment(ctx, leftExp, nodeOperator, rightExp);
 
-        return resultType;
+        return new OperationExpression(leftExp, nodeOperator, rightExp);
     }
 
+    private Expression HandleAssignment(GP.ExpressionContext ctx, Expression leftExp, Operator nodeOperator,
+        Expression rightExp) {
+        
+        if (rightExp.GetResultType().CanBeUsedAs(leftExp.GetResultType())) {
+            if(!leftExp.IsLValue())
+                _errorHandler.ErrorInExpression(CctsError.RVALUE_ASG.CompTime(ctx, ctx.expression()[0].GetText()));
+            
+            return new OperationExpression(leftExp, nodeOperator, rightExp);
+        }
+
+        return _errorHandler.ErrorInExpression(CctsError.TYPE_MISMATCH
+            .CompTime(ctx, rightExp.GetResultType(), leftExp.GetResultType()));
+    }
 
     #region Primary Expression
 
-    private BaseType GetPrimaryExpType(GP.PrimaryExpContext ctx) {
+    private Expression GetPrimaryExp(GP.PrimaryExpContext ctx) {
         if (ctx.primaryExpVal() != null) {
-            var valType = GetPrimaryExpValType(ctx.primaryExpVal());
+            var valType = GetPrimaryExpVal(ctx.primaryExpVal());
             //TODO Check unary operators...
 
             return valType;
         }
 
         if (ctx.objFuncCall() != null) {
-            return GetPrimaryExpType_ObjFuncCall(ctx);
+            return GetPrimaryExp_ObjFuncCall(ctx);
         }
 
         if (ctx.objFieldRef() != null) {
-            return GetPrimaryExpType_ObjFieldRef(ctx);
+            return GetPrimaryExp_ObjFieldRef(ctx);
         }
-        
 
-        if (ctx.assignment() != null)
-            return GetAssignmentType(ctx.assignment());
+        //if (ctx.alloc() != null)
+        //    return GetAlloc(ctx.alloc());
 
-        if (ctx.alloc() != null)
-            return GetAllocType(ctx.alloc());
-
-        return ErrorType.ERROR;
+        return new Expression.Error();
     }
 
-    private BaseType GetPrimaryExpType_ObjFuncCall(GP.PrimaryExpContext ctx) {
-        var objType = GetPrimaryExpType(ctx.primaryExp());
-        var funcCallCtx =  ctx.objFuncCall();
+    private Expression GetPrimaryExp_ObjFuncCall(GP.PrimaryExpContext ctx) {
+        var expression = GetPrimaryExp(ctx.primaryExp());
+        if (expression is not PrimaryExpression primaryExpr)
+            return new Expression.Error();
+
+        var funcCallCtx = ctx.objFuncCall();
         var refOp = GetRefOp(funcCallCtx.accOp());
-        
-        StructType? refType = GetRefObjType(objType, refOp);
-        if (refType == null)
-            return _errorHandler.PostError(CctsError.BAD_OBJ_REF.CompTime(ctx, ctx.GetText()));
 
-        FuncId instFuncId = GetFuncId(funcCallCtx.funcCall());
-        var funcSymb = refType.GetMatchingFunction(instFuncId);
+        FileStruct? refObj = GetRefObj(expression.GetResultType(), refOp);
+        if (refObj == null)
+            return _errorHandler.ErrorInExpression(CctsError.BAD_OBJ_REF.CompTime(ctx, ctx.GetText()));
 
-        if (funcSymb == null) {
-            return _errorHandler.PostError(CctsError.ID_NOT_FOUND.CompTime(funcCallCtx.funcCall(), funcCallCtx.funcCall().GetText()));
+        var funcParams = GetFuncParams(funcCallCtx.funcCall());
+        FuncId instFuncId = GetFuncId(funcCallCtx.funcCall().funcRef().GetText(), funcParams);
+
+        var structFunc = refObj.Functions.GetMatchingFunction(instFuncId);
+
+        if (structFunc == null) {
+            return _errorHandler.ErrorInExpression(CctsError.ID_NOT_FOUND.CompTime(funcCallCtx.funcCall(),
+                funcCallCtx.funcCall().GetText()));
         }
 
-        return funcSymb.ReturnType;
+
+        return new ObjectFuncCallExp(primaryExpr, new ObjectFuncCall(refObj, structFunc));
     }
 
     //TODO 
     //namármost ez Pointer legyen, vagy field?
-    private BaseType GetPrimaryExpType_ObjFieldRef(GP.PrimaryExpContext ctx) {
-        var objType = GetPrimaryExpType(ctx.primaryExp());
-        var fieldRefCtx =  ctx.objFieldRef();
+    private Expression GetPrimaryExp_ObjFieldRef(GP.PrimaryExpContext ctx) {
+        var expression = GetPrimaryExp(ctx.primaryExp());
+        if (expression is not PrimaryExpression primaryExpr)
+            return new Expression.Error();
+
+        var fieldRefCtx = ctx.objFieldRef();
         var refOp = GetRefOp(fieldRefCtx.accOp());
 
-        StructType? refType = GetRefObjType(objType, refOp);
-        if (refType == null)
-            return _errorHandler.PostError(CctsError.BAD_OBJ_REF.CompTime(ctx, ctx.GetText()));
+        FileStruct? refObj = GetRefObj(expression.GetResultType(), refOp);
+        if (refObj == null)
+            return _errorHandler.ErrorInExpression(CctsError.BAD_OBJ_REF.CompTime(ctx, ctx.GetText()));
 
 
         string fieldName = fieldRefCtx.fieldRef().GetText();
-        VariableSymbol? fieldSymb = refType.GetField(fieldName);
-        
-        if (fieldSymb == null) {
-            return _errorHandler.PostError(CctsError.ID_NOT_FOUND.CompTime(fieldRefCtx.fieldRef(), fieldName));
+        StructField? field = refObj.Fields.GetField(fieldName);
+
+        if (field == null) {
+            return _errorHandler.ErrorInExpression(CctsError.ID_NOT_FOUND.CompTime(fieldRefCtx.fieldRef(), fieldName));
         }
 
-        return fieldSymb.Type;
+        return new ObjectFieldRefExp(primaryExpr, new ObjectFieldRef(refObj, field));
     }
 
 
     #region PrimaryExpVal
 
-    private BaseType GetPrimaryExpValType(GP.PrimaryExpValContext ctx) {
+    private Expression GetPrimaryExpVal(GP.PrimaryExpValContext ctx) {
         if (ctx.parenthsExp() != null)
-            return GetParnenthsExpType(ctx.parenthsExp());
+            return GetParnenthsExp(ctx.parenthsExp());
 
         if (ctx.funcCall() != null)
-            return GetFuncCallType(ctx.funcCall());
+            return GetFuncCall(ctx.funcCall());
 
         if (ctx.varRef() != null)
-            return GetVarRefType(ctx.varRef());
+            return GetVarRef(ctx.varRef());
 
         if (ctx.literalExp() != null)
-            return GetLiteralExpType(ctx.literalExp());
+            return GetLiteralExp(ctx.literalExp());
 
         //TODO 
         //ppc funcCall
 
-        return ErrorType.ERROR;
+        return new Expression.Error();
     }
 
-    private BaseType GetParnenthsExpType(GP.ParenthsExpContext ctx) {
-        return EvaluateExpression(ctx.expression());
+    private Expression GetParnenthsExp(GP.ParenthsExpContext ctx) {
+        return new ParenthsExp(EvaluateExpressionCtx(ctx.expression()));
     }
-    private BaseType GetFuncCallType(GP.FuncCallContext ctx) {
-        FuncId funcId = GetFuncId(ctx);
-        FunctionSymbol? func = _scope.GetMatchingFunction(funcId);
+
+    private Expression GetFuncCall(GP.FuncCallContext ctx) {
+        var paramEpxs = GetFuncParams(ctx);
+        FuncId funcId = GetFuncId(ctx.funcRef().GetText(), paramEpxs);
+
+        ModelFunction? func = _scope.GetMatchingFunction(funcId);
         if (func == null) {
-            return _errorHandler.PostError(CctsError.ID_NOT_FOUND.CompTime(ctx, funcId.ToString()));
+            return _errorHandler.ErrorInExpression(CctsError.ID_NOT_FOUND.CompTime(ctx, funcId.ToString()));
         }
 
-        return func.ReturnType;
+        return new FuncCallExp(func, paramEpxs);
     }
 
     //TODO eldönteni: ez most pointer legyen van sima
-    private BaseType GetVarRefType(GP.VarRefContext varRef) {
+    private Expression GetVarRef(GP.VarRefContext varRef) {
         string varName = varRef.GetText();
         var symbol = _scope.GetVariable(varName);
 
-        return symbol?.Type ?? ErrorType.ERROR;
+        if (symbol != null)
+            return new VarRef(symbol);
+        return new Expression.Error();
     }
 
-    private BaseType GetLiteralExpType(GP.LiteralExpContext literalCtx) {
+    private Expression GetLiteralExp(GP.LiteralExpContext literalCtx) {
         string literalTxt = literalCtx.GetText();
 
         //Get literals
@@ -186,12 +219,12 @@ public class ExpressionFactory {
                 var result = FloatParser.Parse(floatCtx.GetText());
 
                 if (result.Type == FloatType.SINGLE)
-                    return PrimitiveType.F32;
+                    return new FloatLiteral(PrimitiveType.F32);
 
                 if (result.Type == FloatType.DOUBLE)
-                    return PrimitiveType.F64;
+                    return new FloatLiteral(PrimitiveType.F64);
 
-                return _errorHandler.PostError(CctsError.LITERAL_ERROR.CompTime(literalCtx, literalTxt));
+                return _errorHandler.ErrorInExpression(CctsError.LITERAL_ERROR.CompTime(literalCtx, literalTxt));
             }
 
             //Integer
@@ -200,12 +233,13 @@ public class ExpressionFactory {
                 try {
                     BigInteger? value = IntegerParser.Parse(intCtx.GetText());
                     if (value == null)
-                        return _errorHandler.PostError(CctsError.LITERAL_ERROR.CompTime(literalCtx, literalTxt));
-                    
-                    return new LiteralIntegerType(value.Value);
+                        return _errorHandler.ErrorInExpression(
+                            CctsError.LITERAL_ERROR.CompTime(literalCtx, literalTxt));
+
+                    return new IntLiteral(new LiteralIntegerType(value.Value));
                 }
                 catch (FormatException) {
-                    return _errorHandler.PostError(CctsError.LITERAL_ERROR.CompTime(literalCtx, literalTxt));
+                    return _errorHandler.ErrorInExpression(CctsError.LITERAL_ERROR.CompTime(literalCtx, literalTxt));
                 }
             }
         }
@@ -215,40 +249,25 @@ public class ExpressionFactory {
         if (literalCtx.charLiteral() != null) {
             try {
                 string val = literalCtx.charLiteral().GetText();
-                return PrimitiveType.CH08;
+                return new CharLiteral(PrimitiveType.CH08);
             }
             catch (FormatException) {
-                return _errorHandler.PostError(CctsError.LITERAL_ERROR.CompTime(literalCtx, literalTxt));
+                return _errorHandler.ErrorInExpression(CctsError.LITERAL_ERROR.CompTime(literalCtx, literalTxt));
             }
         }
 
         if (literalCtx.boolLiteral() != null) {
-            return PrimitiveType.BOOL;
+            return new BoolLiteral();
         }
 
         //if (literalCtx.varRef() != null) { }
 
-        return ErrorType.ERROR;
+        return new Expression.Error();
     }
 
     #endregion
 
-    private BaseType GetAssignmentType(GP.AssignmentContext ctx) {
-        string varName = ctx.varRef().GetText();
-        var varSymb = _scope.GetVariable(varName);
-        if (varSymb == null)
-            return _errorHandler.PostError(CctsError.ID_NOT_FOUND.CompTime(ctx, varName));
-
-        BaseType newValue = EvaluateExpression(ctx.expression());
-
-        if (newValue.CanBeUsedAs(varSymb.Type)) {
-            return varSymb.Type;
-        }
-
-        return _errorHandler.PostError(CctsError.TYPE_MISMATCH.CompTime(ctx, newValue, varSymb.Type));
-    }
-
-    private BaseType GetAllocType(GP.AllocContext ctx) {
+    /*private Expression GetAlloc(GP.AllocContext ctx) {
         BaseType allocType;
         if (ctx.type() != null) {
             allocType = _typeSystem.Get(ctx.type());
@@ -257,11 +276,11 @@ public class ExpressionFactory {
             allocType = EvaluateExpression(ctx.expression());
         }
         else {
-            return _errorHandler.PostError(CctsError.TODO_ERROR.CompTime(ctx));
+            return _errorHandler.ErrorInExpression(CctsError.TODO_ERROR.CompTime(ctx));
         }
 
         return allocType.GetPointer();
-    }
+    }*/
 
     #endregion
 
@@ -277,18 +296,33 @@ public class ExpressionFactory {
             operatorStr = ctx.opBitLvl().GetText();
         else if (ctx.opCompLvl() != null)
             operatorStr = ctx.opCompLvl().GetText();
+        else if (ctx.opAssignmentLvl() != null)
+            operatorStr = ctx.opAssignmentLvl().GetText();
+
+
         return operatorStr;
     }
 
-    private FuncId GetFuncId(GP.FuncCallContext ctx) {
-        string funcName = ctx.funcRef().GetText();
-        List<BaseType> paramTypes = new List<BaseType>();
+
+    private List<Expression> GetFuncParams(GP.FuncCallContext ctx) {
+        List<Expression> paramExps = new List<Expression>();
 
         if (ctx.funcParamVals() != null) {
             foreach (var exp in ctx.funcParamVals().expression()) {
-                paramTypes.Add(EvaluateExpression(exp));
+                paramExps.Add(EvaluateExpressionCtx(exp));
             }
         }
+
+        return paramExps;
+    }
+
+    private FuncId GetFuncId(string funcName, List<Expression> paramExps) {
+        List<BaseType> paramTypes = new List<BaseType>();
+
+        foreach (var exp in paramExps) {
+            paramTypes.Add(exp.GetResultType());
+        }
+
 
         return new FuncId(funcName, paramTypes);
     }
@@ -300,8 +334,8 @@ public class ExpressionFactory {
             return ReferenceOperatorType.REFERENCE;
         return ReferenceOperatorType.ADDRESS;
     }
-    
-    private StructType? GetRefObjType(BaseType objType, ReferenceOperatorType refOp) {
+
+    private FileStruct? GetRefObj(BaseType objType, ReferenceOperatorType refOp) {
         if (refOp == ReferenceOperatorType.REFERENCE) {
             if (objType is not PointerType) {
                 return null;
@@ -309,19 +343,19 @@ public class ExpressionFactory {
 
             var pointer = (PointerType)objType;
 
-            if (pointer.PointsTo is not StructType) {
+            if (pointer.PointsTo is not FileStruct.Type) {
                 return null;
             }
 
-            return (StructType)pointer.PointsTo;
+            return ((FileStruct.Type)pointer.PointsTo).FileStruct;
         }
 
-        if (objType is not StructType) {
+        if (objType is not FileStruct.Type) {
             return null;
         }
 
-        return (StructType)objType;
+        return ((FileStruct.Type)objType).FileStruct;
     }
 
     #endregion
-}
+} //*/

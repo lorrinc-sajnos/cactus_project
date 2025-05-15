@@ -101,6 +101,7 @@ expression
         | expression opAddLvl expression
         | expression opBitLvl expression
         | expression opCompLvl expression
+        | expression opAssignmentLvl expression
     ;
 
 //Operators
@@ -152,6 +153,10 @@ opRightUn
     ;
     
     
+opAssignmentLvl
+    : OP_ASG
+    ;
+    
 primaryExp
     //value primary expression
     : primaryExpVal opRightUn?
@@ -161,7 +166,6 @@ primaryExp
     | primaryExp objFuncCall
     | primaryExp objFieldRef
     //Other primary expressions
-    | assignment
     | alloc
     ;
 
@@ -191,8 +195,6 @@ parenthsExp: PARN_OPN expression PARN_CLS;
 alloc: KYW_ALLOC (expression | type);
 free: KYW_FREE varRef;
 explicitCast: PARN_OPN type PARN_CLS;
-
-assignment: varRef OP_ASG expression;
 
 //Function call
 funcCall: funcRef PARN_OPN funcParamVals? PARN_CLS;

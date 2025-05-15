@@ -40,6 +40,7 @@ public class CctsError {
     public static readonly CctsError OVERLOAD_DOESNT_MATCH_RET_TYPE = new(6, "Overload of {0} doesn't match return type \"{1}\"", "Overload of function \"{0}\" return type has to be \"{1}\"");
     public static readonly CctsError BAD_OBJ_REF = new(7, "Invalid referrence: {0}", "Object reference {0} is not valid.");
     public static readonly CctsError TYPE_MISMATCH = new(8, "Cannot assign type {0} =/> {1}", "Cannot assign type {0} to {1}.");
+    public static readonly CctsError RVALUE_ASG = new(9, "Cannot assign to rvalue #{0}#", "Cannot assign value into #{0}#, as it is an rvalue, thus not acessable.");
 
 
     public static readonly CctsError SYNTAX_WRONG_TOKEN = new(9001, "Syntax error: Unexpected token \"{0}\"", "Token \"{0}\" was unexpected.");

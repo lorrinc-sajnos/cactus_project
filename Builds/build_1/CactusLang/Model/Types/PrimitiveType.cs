@@ -27,9 +27,9 @@ public class PrimitiveType : BaseType {
     public const string INT_PREFIX_HEX = "0x";
     public const string INT_PREFIX_OCT = "0o";
 
-    public bool IsInteger => Kind is Type.Integer or Type.Uint;
-    public bool IsNumber => Kind == Type.Float || IsInteger;
-    public bool IsUnsigned => Kind == Type.Uint;
+    public override bool IsInteger => Kind is Type.Integer or Type.Uint;
+    public override bool IsNumber => Kind == Type.Float || IsInteger;
+    public override bool IsUnsigned => Kind == Type.Uint;
 
     private PrimitiveType(string id, Type kind, int size) {
         _id = id;
@@ -44,19 +44,12 @@ public class PrimitiveType : BaseType {
         _subset.UnionWith(type._subset);
     }
 
-    public bool IsSubsetOf(PrimitiveType superiorPrimitive) {
-        return IsTrueSubsetOf(superiorPrimitive) || this.Equals(superiorPrimitive);
-    }
-
-
-    public bool IsTrueSubsetOf(PrimitiveType superiorPrimitive) {
-        return superiorPrimitive._subset.Contains(this);
-    }
-
     protected override bool CanImplicitCastInto(BaseType superiorType) {
-        if (superiorType is PrimitiveType) {
-            var superiorPrim = (PrimitiveType)superiorType;
-            return this.IsSubsetOf(superiorPrim);
+        if (superiorType is PrimitiveType superiorPrim) {
+            return (superiorPrim._subset.Contains(this) || this.Equals(superiorPrim));
+        }
+        if (superiorType is LiteralIntegerType superiorInt) {
+            return superiorInt.CanBeUsedAs(this);
         }
 
         return false;

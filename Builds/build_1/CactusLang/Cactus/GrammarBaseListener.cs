@@ -492,6 +492,18 @@ public partial class GrammarBaseListener : IGrammarListener {
 	/// <param name="context">The parse tree.</param>
 	public virtual void ExitOpRightUn([NotNull] GrammarParser.OpRightUnContext context) { }
 	/// <summary>
+	/// Enter a parse tree produced by <see cref="GrammarParser.opAssignmentLvl"/>.
+	/// <para>The default implementation does nothing.</para>
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	public virtual void EnterOpAssignmentLvl([NotNull] GrammarParser.OpAssignmentLvlContext context) { }
+	/// <summary>
+	/// Exit a parse tree produced by <see cref="GrammarParser.opAssignmentLvl"/>.
+	/// <para>The default implementation does nothing.</para>
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	public virtual void ExitOpAssignmentLvl([NotNull] GrammarParser.OpAssignmentLvlContext context) { }
+	/// <summary>
 	/// Enter a parse tree produced by <see cref="GrammarParser.primaryExp"/>.
 	/// <para>The default implementation does nothing.</para>
 	/// </summary>
@@ -611,18 +623,6 @@ public partial class GrammarBaseListener : IGrammarListener {
 	/// </summary>
 	/// <param name="context">The parse tree.</param>
 	public virtual void ExitExplicitCast([NotNull] GrammarParser.ExplicitCastContext context) { }
-	/// <summary>
-	/// Enter a parse tree produced by <see cref="GrammarParser.assignment"/>.
-	/// <para>The default implementation does nothing.</para>
-	/// </summary>
-	/// <param name="context">The parse tree.</param>
-	public virtual void EnterAssignment([NotNull] GrammarParser.AssignmentContext context) { }
-	/// <summary>
-	/// Exit a parse tree produced by <see cref="GrammarParser.assignment"/>.
-	/// <para>The default implementation does nothing.</para>
-	/// </summary>
-	/// <param name="context">The parse tree.</param>
-	public virtual void ExitAssignment([NotNull] GrammarParser.AssignmentContext context) { }
 	/// <summary>
 	/// Enter a parse tree produced by <see cref="GrammarParser.funcCall"/>.
 	/// <para>The default implementation does nothing.</para>

@@ -4,8 +4,13 @@ using CactusLang.Model.Types;
 namespace CactusLang.Model.CodeStructure.Expressions.PrimaryExpressions.LiteralExpressions;
 
 public class IntLiteral :  LiteralExpression {
-    BigInteger Value => _type.Value;
-    
-    LiteralIntegerType _type;
-    LiteralIntegerType Type => _type;
+    LiteralIntegerType  _type;   //TODO float literal!
+    public LiteralIntegerType Type => _type;
+
+    public IntLiteral(LiteralIntegerType type) {
+        _type = type;
+    }
+
+    public override BaseType GetResultType() => _type;
+
 }

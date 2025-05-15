@@ -1,4 +1,5 @@
 using Antlr4.Runtime;
+using CactusLang.Model.CodeStructure.Expressions;
 using CactusLang.Model.Errors;
 using CactusLang.Model.Types;
 
@@ -37,7 +38,12 @@ public class ErrorHandler {
             throw new Exception($"Error added:\n{error.AsPrettyString()}");
     }
 
-    public ErrorType PostError(CompError error) {
+    public Expression.Error ErrorInExpression(CompError error) {
+        AddError(error);
+        return new Expression.Error();
+    }
+    
+    public ErrorType ErrorInType(CompError error) {
         AddError(error);
         return ErrorType.ERROR;
     }

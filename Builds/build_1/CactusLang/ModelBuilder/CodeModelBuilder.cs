@@ -8,7 +8,7 @@ using CactusLang.Semantics.Types;
 
 namespace CactusLang.ModelBuilder;
 
-public class CodeModelBuilder : GrammarBaseVisitor<StatusCode> {
+/*public class CodeModelBuilder : GrammarBaseVisitor<StatusCode> {
     private readonly CodeFile _codeFile;
     private readonly FileScope _fileScope;
     private readonly TypeSystem _typeSystem;
@@ -44,4 +44,4 @@ public class CodeModelBuilder : GrammarBaseVisitor<StatusCode> {
         
         return base.VisitVarDcl(context);
     }
-}
+}//*/

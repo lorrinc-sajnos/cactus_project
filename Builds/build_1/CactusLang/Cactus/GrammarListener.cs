@@ -411,6 +411,16 @@ public interface IGrammarListener : IParseTreeListener {
 	/// <param name="context">The parse tree.</param>
 	void ExitOpRightUn([NotNull] GrammarParser.OpRightUnContext context);
 	/// <summary>
+	/// Enter a parse tree produced by <see cref="GrammarParser.opAssignmentLvl"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	void EnterOpAssignmentLvl([NotNull] GrammarParser.OpAssignmentLvlContext context);
+	/// <summary>
+	/// Exit a parse tree produced by <see cref="GrammarParser.opAssignmentLvl"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	void ExitOpAssignmentLvl([NotNull] GrammarParser.OpAssignmentLvlContext context);
+	/// <summary>
 	/// Enter a parse tree produced by <see cref="GrammarParser.primaryExp"/>.
 	/// </summary>
 	/// <param name="context">The parse tree.</param>
@@ -510,16 +520,6 @@ public interface IGrammarListener : IParseTreeListener {
 	/// </summary>
 	/// <param name="context">The parse tree.</param>
 	void ExitExplicitCast([NotNull] GrammarParser.ExplicitCastContext context);
-	/// <summary>
-	/// Enter a parse tree produced by <see cref="GrammarParser.assignment"/>.
-	/// </summary>
-	/// <param name="context">The parse tree.</param>
-	void EnterAssignment([NotNull] GrammarParser.AssignmentContext context);
-	/// <summary>
-	/// Exit a parse tree produced by <see cref="GrammarParser.assignment"/>.
-	/// </summary>
-	/// <param name="context">The parse tree.</param>
-	void ExitAssignment([NotNull] GrammarParser.AssignmentContext context);
 	/// <summary>
 	/// Enter a parse tree produced by <see cref="GrammarParser.funcCall"/>.
 	/// </summary>

@@ -1,3 +1,4 @@
+using CactusLang.Model.CodeStructure;
 using CactusLang.Model.Errors;
 using CactusLang.Model.Types;
 using CactusLang.Semantics.Errors;
@@ -25,9 +26,9 @@ public class TypeSystem {
         }
     }
 
-    public void AddStruct(GrammarParser.StructDclContext ctx) {
-        string structName = ctx.structName().GetText();
-        StructType structType = new StructType(structName);
+    public void AddStruct(GrammarParser.StructDclContext ctx, FileStruct fileStruct) {
+        //string structName = ctx.structName().GetText();
+        FileStruct.Type structType = fileStruct.StructType;
         
         if (_types.ContainsKey(structType.Name)) {
             _errorHandler.AddError(CctsError.ALREADY_DEFINED.CompTime(ctx.structName()));
@@ -36,10 +37,10 @@ public class TypeSystem {
         _types.Add(structType.Name, structType);
     }
 
-    public StructType GetStruct(GrammarParser.StructDclContext ctx) {
+    public FileStruct GetStruct(GrammarParser.StructDclContext ctx) {
         string structName = ctx.structName().GetText();
         
-        return (StructType)_types[structName];
+        return ((FileStruct.Type)_types[structName]).FileStruct;
     }
 
 
@@ -52,7 +53,7 @@ public class TypeSystem {
         string trueName = rawText.Substring(0, rawText.Length - ptrLvl);
 
         if (!_types.ContainsKey(trueName)) {
-            return  _errorHandler.PostError(CctsError.TYPE_NOT_FOUND.CompTime(ctx, ctx.GetText()) );
+            return  _errorHandler.ErrorInType(CctsError.TYPE_NOT_FOUND.CompTime(ctx, ctx.GetText()) );
         }
         
         var type = _types[trueName];

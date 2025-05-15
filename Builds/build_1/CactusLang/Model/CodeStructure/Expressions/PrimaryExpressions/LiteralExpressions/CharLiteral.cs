@@ -2,11 +2,11 @@ using CactusLang.Model.Types;
 
 namespace CactusLang.Model.CodeStructure.Expressions.PrimaryExpressions.LiteralExpressions;
 
-public class FloatLiteral :  LiteralExpression {
+public class CharLiteral :  LiteralExpression {
     PrimitiveType  _type;   //TODO float literal!
     public PrimitiveType Type => _type;
 
-    public FloatLiteral(PrimitiveType type) {
+    public CharLiteral(PrimitiveType type) {
         _type = type;
     }
 

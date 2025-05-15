@@ -8,22 +8,29 @@ namespace CactusLang.Model.Types;
 /// </summary>
 public class LiteralIntegerType : BaseType {
     private List<BaseType> _canBeUsedAs;
-    
-    public LiteralIntegerType(BigInteger value) {
+
+    public BigInteger Value { get; private set; }
+    public override string Name { get; }
+    public override int Size { get; }
+
+
+    public override bool IsInteger => true;
+    public override bool IsNumber => true;
+    public override bool IsUnsigned => Value < 0;
+
+
+    public LiteralIntegerType(BigInteger value)  {
         Value = value;
         _canBeUsedAs = IntegerParser.GetLiteralTypes(value);
     }
 
-    
-    
-    public BigInteger Value { get; private set; }
-    public override string Name { get; }
-    public override int Size { get; }
+    //Kicsikét overkill de lefut
     protected override bool CanImplicitCastInto(BaseType superiorType) {
-        foreach(var possibleType in _canBeUsedAs) {
+        foreach (var possibleType in _canBeUsedAs) {
             if (possibleType.CanBeUsedAs(superiorType))
                 return true;
         }
+
         return false;
     }
 }

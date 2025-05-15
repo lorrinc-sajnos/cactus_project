@@ -1,3 +1,5 @@
+using CactusLang.Model.CodeStructure;
+using CactusLang.Model.CodeStructure.File;
 using CactusLang.Model.Symbols;
 using CactusLang.Model.Types;
 using CactusLang.Semantics;
@@ -7,17 +9,16 @@ using CactusLang.Semantics.Types;
 namespace CactusLang.Model.Scopes;
 
 public class FileScope : Scope {
+    private readonly CodeFile _codeFile;
     private Scope _currentScope;
     private readonly ErrorHandler _errorHandler;
-
-    private readonly FunctionSymbolStore _fileFunctionSymbolStore;
-    public FunctionSymbolStore FileFunctionSymbolStore => _fileFunctionSymbolStore;
     public Scope CurrentScope => _currentScope;
 
-    public FileScope(ErrorHandler errorHandler) {
+    public FileScope(CodeFile codeFile,ErrorHandler errorHandler) {
+        _codeFile = codeFile;
         _errorHandler = errorHandler;
         _currentScope = this;
-        _fileFunctionSymbolStore = new();
+        //_fileFunctionSymbolStore = new();
     }
 
     public void StepIn() {
@@ -25,8 +26,8 @@ public class FileScope : Scope {
         _currentScope = newScope;
     }
 
-    public void StepInStructFunc(StructType structType) {
-        StructFuncScope newScope = new StructFuncScope(structType);
+    public void StepInStructFunc(FileStruct fileStruct) {
+        StructFuncScope newScope = new StructFuncScope(fileStruct);
         _currentScope.AddChild(newScope);
         _currentScope = newScope;
     }
@@ -37,9 +38,7 @@ public class FileScope : Scope {
 
     //public override FunctionSymbol? GetExactFunction(FuncId id) => _fileFunctionStore.GetExactFunction(id);
 
-    public override FunctionSymbol? GetMatchingFunction(FuncId id) => _fileFunctionSymbolStore.GetMatchingFunction(id);
+    public override ModelFunction? GetMatchingFunction(FuncId id) => _codeFile.Functions.GetMatchingFunction(id);
     
-    public bool AddFunction(FunctionSymbol func) => _fileFunctionSymbolStore.AddFunction(func);
-
     public override int GetScopeDepth() => 0;
 }
