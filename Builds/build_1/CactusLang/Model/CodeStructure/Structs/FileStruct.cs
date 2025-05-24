@@ -1,4 +1,5 @@
 using CactusLang.Model.CodeStructure.File;
+using CactusLang.Model.CodeStructure.Structs;
 using CactusLang.Model.Scopes;
 using CactusLang.Model.Symbols;
 using CactusLang.Model.Types;
@@ -13,8 +14,8 @@ public class FileStruct {
     private CodeFile _codeFile;
     public CodeFile CodeFile => _codeFile;
 
-    private FieldStore<StructField?> _fields;
-    public FieldStore<StructField?> Fields => _fields;
+    private FieldStore<StructField> _fields;
+    public FieldStore<StructField> Fields => _fields;
 
     private FunctionStore<StructFunction> _functions;
     public FunctionStore<StructFunction> Functions => _functions;

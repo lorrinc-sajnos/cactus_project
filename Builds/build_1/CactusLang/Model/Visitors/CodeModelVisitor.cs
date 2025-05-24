@@ -1,55 +1,53 @@
+using System.Linq.Expressions;
 using CactusLang.Model.CodeStructure;
 using CactusLang.Model.CodeStructure.Expressions;
 using CactusLang.Model.CodeStructure.Expressions.PrimaryExpressions;
 using CactusLang.Model.CodeStructure.Expressions.PrimaryExpressions.LiteralExpressions;
+using CactusLang.Model.CodeStructure.Expressions.PrimaryExpressions.ObjectReference;
 using CactusLang.Model.CodeStructure.File;
 using CactusLang.Model.CodeStructure.Statements;
+using CactusLang.Model.CodeStructure.Structs;
 using CactusLang.Model.Operators;
 using CactusLang.Model.Operators.ObjectRefference;
+using Expression = CactusLang.Model.CodeStructure.Expressions.Expression;
 using ObjectFieldRef = CactusLang.Model.Operators.ObjectRefference.ObjectFieldRef;
 
 namespace CactusLang.Model.Visitors;
 
-public class CodeModelVisitor {
-    public enum VisitStatus {
-        SUCCESS,
-        FAILURE,
-        RERUN
+public class CodeModelVisitor<T> {
+    protected CodeModelVisitor(T success, T failure) {
+        _success = success;
+        _fail = failure;
     }
 
-    private VisitStatus GetResult(params VisitStatus[] statuses) {
+
+    private readonly T _success;
+    private readonly T _fail;
+
+    protected virtual T AggregateResults(params T[] statuses) {
         foreach (var status in statuses) {
-            if (status == VisitStatus.FAILURE)
-                return VisitStatus.FAILURE;
+            if (status == null || status.Equals(_fail))
+                return _fail;
         }
 
-        return VisitStatus.SUCCESS;
+        return _success;
     }
 
-    private VisitStatus GetResult(List<VisitStatus> statuses) => GetResult(statuses.ToArray());
+    private T GetResult(List<T> statuses) => AggregateResults(statuses.ToArray());
 
-    private readonly CodeFile _file;
 
-    public CodeModelVisitor(CodeFile file) {
-        _file = file;
-    }
-
-    public VisitStatus Start() {
-        return VisitCodeFile(_file);
-    }
-
-    protected virtual VisitStatus VisitCodeFile(CodeFile file) {
+    protected virtual T VisitCodeFile(CodeFile file) {
         var strResult = VisitFileStructs(file.GetStructs());
         var varResult = VisitFileFields(file.Fields.GetFields());
         var funcResult = VisitFileFunctions(file.Functions.GetFunctions());
 
-        return GetResult(strResult, varResult, funcResult);
+        return AggregateResults(strResult, varResult, funcResult);
     }
 
     #region Structs
 
-    protected virtual VisitStatus VisitFileStructs(List<FileStruct> fileStructs) {
-        var results = new List<VisitStatus>();
+    protected virtual T VisitFileStructs(List<FileStruct> fileStructs) {
+        var results = new List<T>();
 
         foreach (var fileStruct in fileStructs) {
             var strResult = VisitFileStruct(fileStruct);
@@ -59,8 +57,8 @@ public class CodeModelVisitor {
         return GetResult(results);
     }
 
-    protected virtual VisitStatus VisitFileStruct(FileStruct fileStruct) {
-        var results = new List<VisitStatus>();
+    protected virtual T VisitFileStruct(FileStruct fileStruct) {
+        var results = new List<T>();
 
         foreach (var field in fileStruct.Fields.GetFields()) {
             var result = VisitStructField(field);
@@ -75,12 +73,12 @@ public class CodeModelVisitor {
         return GetResult(results);
     }
 
-    protected virtual VisitStatus VisitStructField(StructField? structField) {
+    protected virtual T VisitStructField(StructField structField) {
         //Nothing to visit!
-        return VisitStatus.SUCCESS;
+        return _success;
     }
 
-    protected virtual VisitStatus VisitStructFunction(StructFunction function) {
+    protected virtual T VisitStructFunction(StructFunction function) {
         return VisitCodeBlock(function.CodeBody);
     }
 
@@ -88,8 +86,8 @@ public class CodeModelVisitor {
 
     #region File Variables
 
-    protected virtual VisitStatus VisitFileFields(List<FileField> fileVariables) {
-        var results = new List<VisitStatus>();
+    protected virtual T VisitFileFields(List<FileField> fileVariables) {
+        var results = new List<T>();
         foreach (var fileVariable in fileVariables) {
             var result = VisitFileField(fileVariable);
         }
@@ -97,28 +95,32 @@ public class CodeModelVisitor {
         return GetResult(results);
     }
 
-    protected virtual VisitStatus VisitFileField(FileField fileField) {
+    protected virtual T VisitFileField(FileField fileField) {
         //Nothing to visit!
-        return VisitStatus.SUCCESS;
+        return _success;
     }
 
     #endregion
 
     #region Functions
 
-    protected virtual VisitStatus VisitFileFunctions(List<FileFunction> fileFunctions) {
-        var results = new List<VisitStatus>();
+    protected virtual T VisitFileFunctions(List<FileFunction> fileFunctions) {
+        var results = new List<T>();
 
         foreach (var fileFunction in fileFunctions) {
-            var result = VisitCodeBlock(fileFunction.CodeBody);
+            var result = VisitFileFunction(fileFunction);
             results.Add(result);
         }
 
         return GetResult(results);
     }
 
-    protected virtual VisitStatus VisitCodeBlock(CodeBlock codeBlock) {
-        var results = new List<VisitStatus>();
+    protected virtual T VisitFileFunction(FileFunction fileFunction) {
+        return VisitCodeBlock(fileFunction.CodeBody);
+    }
+
+    protected virtual T VisitCodeBlock(CodeBlock codeBlock) {
+        var results = new List<T>();
         foreach (var statement in codeBlock.Statements) {
             var result = VisitStatement(statement);
         }
@@ -130,7 +132,7 @@ public class CodeModelVisitor {
 
     #region Statements
 
-    protected virtual VisitStatus VisitStatement(Statement statement) {
+    protected virtual T VisitStatement(Statement statement) {
         switch (statement) {
             default:
                 throw new NotImplementedException($"Statement {statement} is not implemented");
@@ -150,12 +152,12 @@ public class CodeModelVisitor {
         }
     }
 
-    protected virtual VisitStatus VisitReturnStatement(ReturnStatement returnStatement) {
+    protected virtual T VisitReturnStatement(ReturnStatement returnStatement) {
         return VisitExpression(returnStatement.Expression);
     }
 
-    protected virtual VisitStatus VisitVarDclStatement(VarDclStatement varDclStatement) {
-        var results = new List<VisitStatus>();
+    protected virtual T VisitVarDclStatement(VarDclStatement varDclStatement) {
+        var results = new List<T>();
         foreach (var body in varDclStatement.GetBodies()) {
             var result = VisitVarDclBody(body);
             results.Add(result);
@@ -164,14 +166,14 @@ public class CodeModelVisitor {
         return GetResult(results);
     }
 
-    protected virtual VisitStatus VisitVarDclBody(VarDclStatement.Body varBody) {
+    protected virtual T VisitVarDclBody(VarDclStatement.Body varBody) {
         if (varBody.HasValue)
             return VisitExpression(varBody.Value!);
         //else
-        return VisitStatus.SUCCESS;
+        return _success;
     }
 
-    protected virtual VisitStatus VisitExpressionStatement(ExpressionStatement expressionStatement) {
+    protected virtual T VisitExpressionStatement(ExpressionStatement expressionStatement) {
         return VisitExpression(expressionStatement.Expression);
     }
 
@@ -179,7 +181,7 @@ public class CodeModelVisitor {
 
     #region Expressions
 
-    protected virtual VisitStatus VisitExpression(Expression expression) {
+    protected virtual T VisitExpression(Expression expression) {
         switch (expression) {
             default:
                 throw new NotImplementedException($"Expression {expression} is not implemented");
@@ -190,16 +192,16 @@ public class CodeModelVisitor {
         }
     }
 
-    protected virtual VisitStatus VisitOperationExpression(OperationExpression operationExpression) {
+    protected virtual T VisitOperationExpression(OperationExpression operationExpression) {
         var leftResult = VisitExpression(operationExpression.LeftExpression);
         var operatorResult = VisitOperator(operationExpression.Operator);
         var rightResult = VisitExpression(operationExpression.RightExpression);
-        return GetResult(leftResult, rightResult);
+        return AggregateResults(leftResult, rightResult);
     }
 
-    protected virtual VisitStatus VisitPrimaryExpression(PrimaryExpression primaryExpression) {
-        VisitStatus primExpResult;
-        VisitStatus opResult = VisitStatus.SUCCESS;
+    protected virtual T VisitPrimaryExpression(PrimaryExpression primaryExpression) {
+        T primExpResult;
+        T opResult = _success;
 
         if (primaryExpression.HasUnaryOperation &&
             primaryExpression.UnaryOperation!.OpSide == UnaryOp.Side.LEFT)
@@ -217,8 +219,17 @@ public class CodeModelVisitor {
             case VarRef varRef:
                 primExpResult = VisitVarRefExpression(varRef);
                 break;
+            case LocalVarRef localVarRef:
+                primExpResult = VisitLocalVarRefExpression(localVarRef);
+                break;
             case LiteralExpression literalExpression:
                 primExpResult = VisitLiteralExpression(literalExpression);
+                break;
+            case ObjectFieldRefExp objectFieldRefExp:
+                primExpResult = VisitObjectFieldRefExp(objectFieldRefExp);
+                break;
+            case ObjectFuncCallExp objectFuncCallExp:
+                primExpResult = VisitObjectFuncCallExp(objectFuncCallExp);
                 break;
         }
 
@@ -226,13 +237,13 @@ public class CodeModelVisitor {
             primaryExpression.UnaryOperation!.OpSide == UnaryOp.Side.RIGHT)
             opResult = VisitUnaryOperator(primaryExpression.UnaryOperation);
 
-        return GetResult(primExpResult, opResult);
+        return AggregateResults(primExpResult, opResult);
     }
 
     #region PrimaryExpression
 
-    protected virtual VisitStatus VisitFuncCallExpression(FuncCallExp funcCall) {
-        var results = new List<VisitStatus>();
+    protected virtual T VisitFuncCallExpression(FuncCallExp funcCall) {
+        var results = new List<T>();
         foreach (var parameter in funcCall.GetParameters()) {
             var result = VisitExpression(parameter);
             results.Add(result);
@@ -241,16 +252,21 @@ public class CodeModelVisitor {
         return GetResult(results);
     }
 
-    protected virtual VisitStatus VisitParenthsExpression(ParenthsExp parenthsExpression) {
+    protected virtual T VisitParenthsExpression(ParenthsExp parenthsExpression) {
         return VisitExpression(parenthsExpression.InnerExpression);
     }
 
-    protected virtual VisitStatus VisitVarRefExpression(VarRef varRef) {
+    protected virtual T VisitVarRefExpression(VarRef varRef) {
         //Nothing to visit!
-        return VisitStatus.SUCCESS;
+        return _success;
     }
 
-    protected virtual VisitStatus VisitLiteralExpression(LiteralExpression literalExpression) {
+    protected virtual T VisitLocalVarRefExpression(LocalVarRef structFieldRef) {
+        //Nothing to visit!
+        return _success;
+    }
+
+    protected virtual T VisitLiteralExpression(LiteralExpression literalExpression) {
         switch (literalExpression) {
             default:
                 throw new NotImplementedException($"Literal expression {literalExpression} is not implemented");
@@ -261,16 +277,35 @@ public class CodeModelVisitor {
         }
     }
 
-    #region Literal Expression
-
-    protected virtual VisitStatus VisitFloatLiteralExpression(FloatLiteral literalExpression) {
-        //Nothing to visit!
-        return VisitStatus.SUCCESS;
+    protected virtual T VisitObjectFieldRefExp(ObjectFieldRefExp objectFieldRefExp) {
+        return VisitPrimaryExpression(objectFieldRefExp.Object);
     }
 
-    protected virtual VisitStatus VisitIntLiteralExpression(IntLiteral literalExpression) {
+    protected virtual T VisitObjectFuncCallExp(ObjectFuncCallExp objectFuncCallExp) {
+        var results = new List<T>();
+        results.Add(VisitPrimaryExpression(objectFuncCallExp.Object));
+        
+        foreach (Expression exp in objectFuncCallExp.GetParameters()) {
+            results.Add(VisitExpression(exp));
+        }
+
+        return GetResult(results);
+    }
+
+    #region Literal Expression
+
+    protected virtual T VisitFloatLiteralExpression(FloatLiteral literalExpression) {
         //Nothing to visit!
-        return VisitStatus.SUCCESS;
+        return _success;
+    }
+
+    protected virtual T VisitIntLiteralExpression(IntLiteral literalExpression) {
+        //Nothing to visit!
+        return _success;
+    }
+
+    protected virtual T VisitStrLiteralExpression(StringLiteral strLiteral) {
+        return  _success;
     }
 
     #endregion
@@ -283,7 +318,7 @@ public class CodeModelVisitor {
 
     #region Unary Operators
 
-    protected virtual VisitStatus VisitUnaryOperator(UnaryOp op) {
+    protected virtual T VisitUnaryOperator(UnaryOp op) {
         switch (op) {
             default:
                 throw new NotImplementedException($"Operator {op} is not implemented");
@@ -301,34 +336,34 @@ public class CodeModelVisitor {
         }
     }
 
-    protected virtual VisitStatus VisitAddressOperator(AddressOperator addressOperator) {
+    protected virtual T VisitAddressOperator(AddressOperator addressOperator) {
         //Nothing to visit!
-        return VisitStatus.SUCCESS;
+        return _success;
     }
 
-    protected virtual VisitStatus VisitBaseUnaryOp(BaseUnaryOp checkUnaryOp) {
+    protected virtual T VisitBaseUnaryOp(BaseUnaryOp checkUnaryOp) {
         //Nothing to visit!
-        return VisitStatus.SUCCESS;
+        return _success;
     }
 
-    protected virtual VisitStatus VisitDereferenceOperator(DereferenceOperator dereferenceOperator) {
+    protected virtual T VisitDereferenceOperator(DereferenceOperator dereferenceOperator) {
         //Nothing to visit!
-        return VisitStatus.SUCCESS;
+        return _success;
     }
 
-    protected virtual VisitStatus VisitObjectFieldRef(ObjectFieldRef objectFieldRef) {
+    protected virtual T VisitObjectFieldRef(ObjectFieldRef objectFieldRef) {
         //Nothing to visit!
-        return VisitStatus.SUCCESS;
+        return _success;
     }
 
-    protected virtual VisitStatus VisitObjectFuncCall(ObjectFuncCall objectFuncCall) {
+    protected virtual T VisitObjectFuncCall(ObjectFuncCall objectFuncCall) {
         //Nothing to visit!
-        return VisitStatus.SUCCESS;
+        return _success;
     }
 
     #endregion
 
-    protected VisitStatus VisitOperator(Operator op) {
+    protected T VisitOperator(Operator op) {
         switch (op) {
             default:
                 throw new NotImplementedException($"Operator {op} is not implemented");
@@ -340,27 +375,34 @@ public class CodeModelVisitor {
                 return VisitIntOperator(intOperator);
             case MathOperator mathOperator:
                 return VisitMathOperator(mathOperator);
+            case AssignmentOperator assignmentOperator:
+                return VisitAssignmentOperator(assignmentOperator);
         }
     }
 
-    protected virtual VisitStatus VisitBitShiftOperator(BitShiftOperator op) {
+    protected virtual T VisitBitShiftOperator(BitShiftOperator op) {
         //Nothing to visit!
-        return VisitStatus.SUCCESS;
+        return _success;
     }
 
-    protected virtual VisitStatus VisitCompOperator(CompOperator op) {
+    protected virtual T VisitCompOperator(CompOperator op) {
         //Nothing to visit!
-        return VisitStatus.SUCCESS;
+        return _success;
     }
 
-    protected virtual VisitStatus VisitIntOperator(IntOperator op) {
+    protected virtual T VisitIntOperator(IntOperator op) {
         //Nothing to visit!
-        return VisitStatus.SUCCESS;
+        return _success;
     }
 
-    protected virtual VisitStatus VisitMathOperator(MathOperator op) {
+    protected virtual T VisitMathOperator(MathOperator op) {
         //Nothing to visit!
-        return VisitStatus.SUCCESS;
+        return _success;
+    }
+
+    protected virtual T VisitAssignmentOperator(AssignmentOperator op) {
+        //Nothing to visit!
+        return _success;
     }
 
     #endregion

@@ -6,7 +6,7 @@ namespace CactusLang.Model.CodeStructure.Expressions.PrimaryExpressions.LiteralE
 public class IntLiteral :  LiteralExpression {
     LiteralIntegerType  _type;   //TODO float literal!
     public LiteralIntegerType Type => _type;
-
+    public override string Value => _type.Value.ToString();
     public IntLiteral(LiteralIntegerType type) {
         _type = type;
     }

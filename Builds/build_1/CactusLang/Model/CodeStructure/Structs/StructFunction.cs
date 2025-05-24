@@ -1,7 +1,6 @@
-using CactusLang.Model.CodeStructure.File;
 using CactusLang.Model.Symbols;
 
-namespace CactusLang.Model.CodeStructure;
+namespace CactusLang.Model.CodeStructure.Structs;
 
 public class StructFunction : ModelFunction {
     private FileStruct _parent;

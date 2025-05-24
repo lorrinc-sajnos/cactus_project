@@ -8,11 +8,15 @@ public class ObjectFuncCallExp : PrimaryExpression {
     public PrimaryExpression Object => _object;
     private ObjectFuncCall _funcCall;
     public ObjectFuncCall FuncCall => _funcCall;
+    
+    List<Expression> _parameters;
+    public List<Expression> GetParameters() => _parameters;
 
     public override bool IsLValue() => true;
-    public ObjectFuncCallExp(PrimaryExpression objExpression, ObjectFuncCall funcCall) {
+    public ObjectFuncCallExp(PrimaryExpression objExpression, List<Expression> parameters, ObjectFuncCall funcCall) {
         _funcCall = funcCall;
         _object = objExpression;
+        _parameters = parameters;
     }
 
     public override BaseType GetResultType() => _funcCall.ReturnType;

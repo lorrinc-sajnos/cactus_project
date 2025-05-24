@@ -12,6 +12,12 @@ public class VariableSymbol {
 
     //public VariableSymbol(BaseType type, string name) : this(type, 0, name) { }
 
+    public VariableSymbol(VariableSymbol copy) {
+        Tags = copy.Tags;
+        Name = copy.Name;
+        Id = copy.Id;
+        Type = copy.Type;
+    }
     public VariableSymbol(BaseType type, string name) {
         Tags = new TagContainer();
         Name = name;

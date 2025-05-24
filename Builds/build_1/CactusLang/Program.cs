@@ -2,6 +2,7 @@
 
 using Antlr4.Runtime;
 using Antlr4.Runtime.Tree;
+using CactusLang.CodeGeneration;
 using CactusLang.Model;
 using CactusLang.Model.Codefiles;
 using CactusLang.Model.Types;
@@ -20,10 +21,23 @@ CodeSourceFile codeFile = new CodeSourceFile(filePath);
     
 SemanticAnalyzer analyzer = new SemanticAnalyzer(codeFile);
 analyzer.Analyze();
+
 analyzer.ErrorHandler.PrintErrors();
 
-//analyzer.Errorhandler
-
+if (analyzer.ErrorHandler.GetErrors().Count > 0) {
+    Console.WriteLine("Parsing failed");
+    Console.WriteLine("Gen terminated");
+    
+    return;
+}
 
 Console.WriteLine("Parsing finished");
+ModelGenerator modelGenerator = new ModelGenerator(analyzer.CodeFile);
+modelGenerator.GenerateCode();
+//analyzer.Errorhandler
+
+modelGenerator.PrintCode();
+modelGenerator.GenerateFiles();
+
+Console.WriteLine("Gen finished");
 //Console.ReadKey();

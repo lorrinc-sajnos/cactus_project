@@ -5,6 +5,7 @@ using CactusLang.Model.Codefiles;
 using CactusLang.Model.CodeStructure;
 using CactusLang.Model.CodeStructure.File;
 using CactusLang.Model.CodeStructure.Statements;
+using CactusLang.Model.CodeStructure.Structs;
 using CactusLang.Model.Errors;
 using CactusLang.Model.Scopes;
 using CactusLang.Model.Symbols;
@@ -22,12 +23,12 @@ public class SemanticAnalyzer : GrammarBaseVisitor<StatusCode> {
     private readonly FileScope _fileScope;
     private readonly ErrorHandler _errorHandler;
     private readonly CodeFile _codeFile;
+    public CodeFile CodeFile => _codeFile;
     public ErrorHandler ErrorHandler => _errorHandler;
 
     private Scope CurrentScope => _fileScope.CurrentScope;
     private CodeBlock _currentBlock;
-    
-    
+
 
     public SemanticAnalyzer(CodeSourceFile sourceFile) {
         //Antlr
@@ -37,7 +38,7 @@ public class SemanticAnalyzer : GrammarBaseVisitor<StatusCode> {
         _parser = new GrammarParser(tokenStream);
         _codeFile = new CodeFile(sourceFile);
 
-        _errorHandler = new ErrorHandler();
+        _errorHandler = new ErrorHandler(sourceFile.Path);
 
         _parser.AddErrorListener(_errorHandler.ErrorListener);
 
@@ -50,7 +51,7 @@ public class SemanticAnalyzer : GrammarBaseVisitor<StatusCode> {
 
         Debug.LogLine($"Start index:\t{ctx.Start.StartIndex}");
         Debug.LogLine($"Stop index:\t{ctx.Stop.StopIndex}");
-        
+
         RegisterIncludes(ctx);
         RegisterStructs(ctx);
         //After registering structs, the Type system is completed, can begin registering functions
@@ -137,7 +138,7 @@ public class SemanticAnalyzer : GrammarBaseVisitor<StatusCode> {
         FileFunction fileFunc = new FileFunction(funcSymb, _codeFile);
         var result = _codeFile.Functions.AddFunction(fileFunc);
         if (result == false) {
-            _errorHandler.ErrorInExpression(CctsError.OVERLOAD_DOESNT_MATCH_RET_TYPE.CompTime(header.funcName()));
+            _errorHandler.ErrorInExpression(CctsError.OVERLOAD_DOESNT_MATCH_RET_TYPE, ctx, header.funcName());
         }
 
         Debug.LogLine($"Func {funcSymb.Name} declared.");
@@ -155,7 +156,7 @@ public class SemanticAnalyzer : GrammarBaseVisitor<StatusCode> {
             _codeFile.Fields.AddField(field);
 
             if (!result)
-                _errorHandler.AddError(CctsError.ALREADY_DEFINED.CompTime(ctx));
+                _errorHandler.Error(CctsError.ALREADY_DEFINED, ctx);
 
             Debug.LogLine($"GlobVar Added: {symb.Type.Name}   {symb.Name}");
         }
@@ -196,7 +197,6 @@ public class SemanticAnalyzer : GrammarBaseVisitor<StatusCode> {
     #endregion
 
     private void AnalyzeCodeFile(GP.CodefileContext ctx) {
-        
         foreach (var statement in ctx.fileStatement()) {
             //File function bodies
             if (statement.funcDcl() != null) {
@@ -223,8 +223,6 @@ public class SemanticAnalyzer : GrammarBaseVisitor<StatusCode> {
                 Debug.LogLine();
             }
         }
-        
-        
     }
 
     private void ProcessFunctionBody(GP.FuncDclContext ctx) {
@@ -258,7 +256,7 @@ public class SemanticAnalyzer : GrammarBaseVisitor<StatusCode> {
 
         _currentBlock = func.CodeBody;
         VisitCodeBody(codeBody);
-        
+
         //_fileScope.StepOut();
 
 
@@ -289,10 +287,10 @@ public class SemanticAnalyzer : GrammarBaseVisitor<StatusCode> {
     public override StatusCode VisitVarDcl(GrammarParser.VarDclContext ctx) {
         BaseType dclType = _typeSystem.Get(ctx.type());
         VarDclStatement varDclStatement = new();
-        
+
         foreach (var dclBody in ctx.varDclBody()) {
             var varSymbol = new VariableSymbol(dclType, dclBody.varName().GetText());
-            
+
             //Typecheck:
             if (dclBody.expression() != null) {
                 var asgExprCtx = dclBody.expression();
@@ -301,31 +299,44 @@ public class SemanticAnalyzer : GrammarBaseVisitor<StatusCode> {
 
 
                 if (!asgExpression.GetResultType().CanBeUsedAs(dclType)) {
-                    _errorHandler.ErrorInExpression(CctsError.TYPE_MISMATCH.CompTime(ctx, asgExpression.GetResultType(), dclType));
+                    _errorHandler.ErrorInExpression(CctsError.TYPE_MISMATCH, ctx, asgExpression.GetResultType(),
+                        dclType);
                     //continue;
                 }
+
                 varDclStatement.AddBody(new VarDclStatement.Body(varSymbol, asgExpression));
             }
             else {
                 varDclStatement.AddBody(new VarDclStatement.Body(varSymbol));
             }
-            
+
             _fileScope.CurrentScope.AddVariable(varSymbol);
         }
-        
+
         _currentBlock.AddStatement(varDclStatement);
         return base.VisitVarDcl(ctx);
     }
 
     public override StatusCode VisitExpressionStatement(GrammarParser.ExpressionStatementContext ctx) {
-        var validator = CreateFactory(ctx.expression());
-        var expression = validator.EvaluateExpression();
-        
-        
+        var factory = CreateFactory(ctx.expression());
+        var expression = factory.EvaluateExpression();
+
+
         var res = base.VisitExpressionStatement(ctx);
 
         _currentBlock.AddStatement(new ExpressionStatement(expression));
         return res;
+    }
+
+
+    public override StatusCode VisitReturnStatement(GrammarParser.ReturnStatementContext ctx) {
+        var factory = CreateFactory(ctx.expression());
+        var expression = factory.EvaluateExpression();
+
+
+        _currentBlock.AddStatement(new ReturnStatement(expression));
+
+        return base.VisitReturnStatement(ctx);
     }
 
     #endregion

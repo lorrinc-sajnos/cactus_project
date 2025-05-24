@@ -4,7 +4,8 @@ using CactusLang.Model.Types;
 namespace CactusLang.Model.CodeStructure.Expressions.PrimaryExpressions;
 
 public class FuncCallExp : PrimaryExpression {
-    ModelFunction _function;
+    private ModelFunction _function;
+    public ModelFunction Function => _function;
     List<Expression> _parameters;
     public List<Expression> GetParameters() => _parameters;
     public override bool IsLValue() => false;

@@ -4,7 +4,7 @@ using CactusLang.Model.Types;
 
 namespace CactusLang.Model;
 
-public class ModelFunction {
+public abstract class ModelFunction {
     protected FunctionSymbol _symbol;
     protected CodeBlock _codeBody;
 

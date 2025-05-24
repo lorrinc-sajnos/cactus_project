@@ -10,7 +10,7 @@ public class LiteralIntegerType : BaseType {
     private List<BaseType> _canBeUsedAs;
 
     public BigInteger Value { get; private set; }
-    public override string Name { get; }
+    public override string Name => $"Literal Integer ({Value})";
     public override int Size { get; }
 
 
@@ -24,7 +24,7 @@ public class LiteralIntegerType : BaseType {
         _canBeUsedAs = IntegerParser.GetLiteralTypes(value);
     }
 
-    //Kicsikét overkill de lefut
+    //Maybe slow but it runs
     protected override bool CanImplicitCastInto(BaseType superiorType) {
         foreach (var possibleType in _canBeUsedAs) {
             if (possibleType.CanBeUsedAs(superiorType))

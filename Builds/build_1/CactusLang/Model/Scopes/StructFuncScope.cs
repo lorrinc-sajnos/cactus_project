@@ -19,14 +19,14 @@ public class StructFuncScope : Scope {
 
     private void InitVariables() {
         foreach (var varSymbol in _fileStruct.Fields.GetFields()) {
-            var result = this.AddVariable(varSymbol.Symbol);
+            var result = this.AddVariable(new StructFieldRefSymbol(_fileStruct, varSymbol.Symbol));
         }
     }
 
     public override ModelFunction? GetMatchingFunction(FuncId id) {
-        if(_fileStruct.Functions.ContainsMatchingFunction(id))
+        if (_fileStruct.Functions.ContainsMatchingFunction(id))
             return _fileStruct.Functions.GetMatchingFunction(id);
-        
+
         return base.GetMatchingFunction(id);
     }
 }

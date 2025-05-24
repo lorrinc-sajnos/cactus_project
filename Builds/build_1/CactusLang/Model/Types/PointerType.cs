@@ -31,4 +31,12 @@ public class PointerType : BaseType {
         //TODO
         return false;
     }
+
+    public override bool Equals(object? obj) {
+        if (obj is PointerType other) {
+            return this.PointsTo.Equals(other.PointsTo);
+        }
+
+        return false;
+    }
 }

@@ -5,6 +5,7 @@ using CactusLang.Model.Errors;
 namespace CactusLang.Semantics.Errors;
 
 public class CompError {
+    private ErrorHandler _errorHandler;
     public string Title { get; private set; }
     public string Msg { get; private set; }
     
@@ -17,8 +18,9 @@ public class CompError {
     public IToken StartToken { get; private set; }
     public IToken EndToken { get; private set; }
 
-    public CompError(CctsError error, IToken startToken, IToken endToken, params object[] errParams) {
+    public CompError(CctsError error, ErrorHandler errorHandler, IToken startToken, IToken endToken, params object[] errParams) {
         Error = error;
+        _errorHandler = errorHandler;
         try {
             Title = string.Format(error.Title, errParams);
             Msg = string.Format(error.Msg, errParams);
@@ -27,16 +29,14 @@ public class CompError {
             Title = Error.Title+"|ERR";
             Msg = Error.Msg+"|ERR";
         }
-        
         StartToken = startToken;
         EndToken = endToken;
 
-        Start = new CodePos("TEMP", startToken.Line, startToken.Column);
+        Start = new CodePos(_errorHandler.Filename, startToken.Line, startToken.Column);
         int endTokenLength = endToken.Text.Length;
 
-        End = new CodePos("TEMP", endToken.Line, endToken.Column + endTokenLength);
+        End = new CodePos(_errorHandler.Filename, endToken.Line, endToken.Column + endTokenLength);
     }
 
-    public string AsPrettyString() => $"@{Start}: [{Code}]\t{Title}\n" +
-                                      $"\t{Msg}";
+    public string AsPrettyString() => $"ERROR: {Start}\t\t[{Code:D4}]  {Title}";
 }

@@ -4,10 +4,6 @@ namespace CactusLang.Model.CodeStructure.Expressions;
 
 public abstract class Expression {
     public abstract BaseType GetResultType();
-
-
-
-
     public abstract bool IsLValue();
     public bool IsRValue() => !IsLValue();
     

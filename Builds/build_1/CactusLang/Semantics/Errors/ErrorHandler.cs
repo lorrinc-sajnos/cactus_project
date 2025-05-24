@@ -6,8 +6,8 @@ using CactusLang.Model.Types;
 namespace CactusLang.Semantics.Errors;
 
 public class ErrorHandler {
-    private bool _throwOnError;
-    
+    private const bool THROW_ON_ERROR = false;
+
     public class ParserErrorListener : BaseErrorListener {
         private ErrorHandler _errorHandler;
 
@@ -15,48 +15,78 @@ public class ErrorHandler {
             _errorHandler = errorHandler;
         }
 
-        public override void SyntaxError(TextWriter output, IRecognizer recognizer, IToken offendingSymbol, int line, int charPositionInLine,
+        public override void SyntaxError(TextWriter output, IRecognizer recognizer, IToken offendingSymbol, int line,
+            int charPositionInLine,
             string msg, RecognitionException e) {
             base.SyntaxError(output, recognizer, offendingSymbol, line, charPositionInLine, msg, e);
-            
-            _errorHandler.AddError(CctsError.SYNTAX_WRONG_TOKEN.CompTime(offendingSymbol,offendingSymbol,offendingSymbol.Text));
+
+            _errorHandler.AddCompError(
+                CctsError.SYNTAX_WRONG_TOKEN.CompTime(_errorHandler, offendingSymbol, offendingSymbol.Text));
         }
     }
-    
+
     public ParserErrorListener ErrorListener { get; private set; }
+    public string Filename { get; private set; }
+
     private readonly List<CompError> _errors;
-    
-    public ErrorHandler(bool throwOnError = false) {
+
+    public ErrorHandler(string filename) {
         _errors = new List<CompError>();
         ErrorListener = new(this);
-        _throwOnError =  throwOnError;
+        //_throwOnError =  throwOnError;
+        Filename = filename;
     }
 
-    public void AddError(CompError error) {
+    private void AddCompError(CompError error) {
         _errors.Add(error);
-        if (_throwOnError) 
+        if (THROW_ON_ERROR)
             throw new Exception($"Error added:\n{error.AsPrettyString()}");
     }
 
-    public Expression.Error ErrorInExpression(CompError error) {
-        AddError(error);
+    
+    public void Error(CctsError error, IToken token, params object[] msgParams) =>
+        ErrorInExpressionFromCompTime(error.CompTime(this, token, msgParams));
+    public void Error(CctsError error, IToken start, IToken end, params object[] msgParams) =>
+        ErrorInExpressionFromCompTime(error.CompTime(this, start, end, msgParams));
+    public void Error(CctsError error, ParserRuleContext ctx, params object[] msgParams) =>
+        ErrorInExpressionFromCompTime(error.CompTime(this, ctx, msgParams));
+    
+    
+    
+    #region Expression
+    public Expression.Error ErrorInExpression(CctsError error, IToken token, params object[] msgParams) =>
+        ErrorInExpressionFromCompTime(error.CompTime(this, token, msgParams));
+    public Expression.Error ErrorInExpression(CctsError error, IToken start, IToken end, params object[] msgParams) =>
+        ErrorInExpressionFromCompTime(error.CompTime(this, start, end, msgParams));
+    public Expression.Error ErrorInExpression(CctsError error, ParserRuleContext ctx, params object[] msgParams) =>
+        ErrorInExpressionFromCompTime(error.CompTime(this, ctx, msgParams));
+    private Expression.Error ErrorInExpressionFromCompTime(CompError compError) {
+        AddCompError(compError);
         return new Expression.Error();
     }
+    #endregion
     
-    public ErrorType ErrorInType(CompError error) {
-        AddError(error);
+    #region Type
+    public ErrorType ErrorInType(CctsError error, IToken token, params object[] msgParams) =>
+        ErrorInTypeFromCompTime(error.CompTime(this, token, msgParams));
+    public ErrorType ErrorInType(CctsError error, IToken start, IToken end, params object[] msgParams) =>
+        ErrorInTypeFromCompTime(error.CompTime(this, start, end, msgParams));
+    public ErrorType ErrorInType(CctsError error, ParserRuleContext ctx, params object[] msgParams) =>
+        ErrorInTypeFromCompTime(error.CompTime(this, ctx, msgParams));
+    private ErrorType ErrorInTypeFromCompTime(CompError compError) {
+        AddCompError(compError);
         return ErrorType.ERROR;
     }
-    
-    public  List<CompError> GetErrors() => _errors;
-    
-    
+
+    public List<CompError> GetErrors() => _errors;
+    #endregion
+
     public void PrintErrors() {
         if (_errors.Count == 0) {
             Console.WriteLine("No errors found :)");
             return;
         }
-        
+
         foreach (var error in _errors) {
             Console.WriteLine(error.AsPrettyString());
         }

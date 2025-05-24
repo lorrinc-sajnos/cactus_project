@@ -71,16 +71,15 @@ public class ExpressionFactory {
 
     private Expression HandleAssignment(GP.ExpressionContext ctx, Expression leftExp, Operator nodeOperator,
         Expression rightExp) {
-        
         if (rightExp.GetResultType().CanBeUsedAs(leftExp.GetResultType())) {
-            if(!leftExp.IsLValue())
-                _errorHandler.ErrorInExpression(CctsError.RVALUE_ASG.CompTime(ctx, ctx.expression()[0].GetText()));
-            
+            if (!leftExp.IsLValue())
+                _errorHandler.ErrorInExpression(CctsError.RVALUE_ASG, ctx, ctx.expression()[0].GetText());
+
             return new OperationExpression(leftExp, nodeOperator, rightExp);
         }
 
-        return _errorHandler.ErrorInExpression(CctsError.TYPE_MISMATCH
-            .CompTime(ctx, rightExp.GetResultType(), leftExp.GetResultType()));
+        return _errorHandler.ErrorInExpression(CctsError.TYPE_MISMATCH, ctx, rightExp.GetResultType(),
+            leftExp.GetResultType());
     }
 
     #region Primary Expression
@@ -117,7 +116,7 @@ public class ExpressionFactory {
 
         FileStruct? refObj = GetRefObj(expression.GetResultType(), refOp);
         if (refObj == null)
-            return _errorHandler.ErrorInExpression(CctsError.BAD_OBJ_REF.CompTime(ctx, ctx.GetText()));
+            return _errorHandler.ErrorInExpression(CctsError.BAD_OBJ_REF,ctx, ctx.GetText());
 
         var funcParams = GetFuncParams(funcCallCtx.funcCall());
         FuncId instFuncId = GetFuncId(funcCallCtx.funcCall().funcRef().GetText(), funcParams);
@@ -125,12 +124,12 @@ public class ExpressionFactory {
         var structFunc = refObj.Functions.GetMatchingFunction(instFuncId);
 
         if (structFunc == null) {
-            return _errorHandler.ErrorInExpression(CctsError.ID_NOT_FOUND.CompTime(funcCallCtx.funcCall(),
-                funcCallCtx.funcCall().GetText()));
+            return _errorHandler.ErrorInExpression(CctsError.ID_NOT_FOUND,funcCallCtx.funcCall(),
+                funcCallCtx.funcCall().GetText());
         }
 
 
-        return new ObjectFuncCallExp(primaryExpr, new ObjectFuncCall(refObj, structFunc));
+        return new ObjectFuncCallExp(primaryExpr, funcParams, new ObjectFuncCall(refObj, structFunc));
     }
 
     //TODO 
@@ -145,14 +144,14 @@ public class ExpressionFactory {
 
         FileStruct? refObj = GetRefObj(expression.GetResultType(), refOp);
         if (refObj == null)
-            return _errorHandler.ErrorInExpression(CctsError.BAD_OBJ_REF.CompTime(ctx, ctx.GetText()));
+            return _errorHandler.ErrorInExpression(CctsError.BAD_OBJ_REF,ctx, ctx.GetText());
 
 
         string fieldName = fieldRefCtx.fieldRef().GetText();
         StructField? field = refObj.Fields.GetField(fieldName);
 
         if (field == null) {
-            return _errorHandler.ErrorInExpression(CctsError.ID_NOT_FOUND.CompTime(fieldRefCtx.fieldRef(), fieldName));
+            return _errorHandler.ErrorInExpression(CctsError.ID_NOT_FOUND,fieldRefCtx.fieldRef(), fieldName);
         }
 
         return new ObjectFieldRefExp(primaryExpr, new ObjectFieldRef(refObj, field));
@@ -190,7 +189,7 @@ public class ExpressionFactory {
 
         ModelFunction? func = _scope.GetMatchingFunction(funcId);
         if (func == null) {
-            return _errorHandler.ErrorInExpression(CctsError.ID_NOT_FOUND.CompTime(ctx, funcId.ToString()));
+            return _errorHandler.ErrorInExpression(CctsError.ID_NOT_FOUND,ctx, funcId.ToString());
         }
 
         return new FuncCallExp(func, paramEpxs);
@@ -201,8 +200,13 @@ public class ExpressionFactory {
         string varName = varRef.GetText();
         var symbol = _scope.GetVariable(varName);
 
-        if (symbol != null)
+        if (symbol != null) {
+            if (symbol is StructFieldRefSymbol structFieldRefSymbol)
+                return new LocalVarRef(structFieldRefSymbol);
+
             return new VarRef(symbol);
+        }
+
         return new Expression.Error();
     }
 
@@ -219,12 +223,12 @@ public class ExpressionFactory {
                 var result = FloatParser.Parse(floatCtx.GetText());
 
                 if (result.Type == FloatType.SINGLE)
-                    return new FloatLiteral(PrimitiveType.F32);
+                    return new FloatLiteral(PrimitiveType.F32,floatCtx.GetText());
 
                 if (result.Type == FloatType.DOUBLE)
-                    return new FloatLiteral(PrimitiveType.F64);
+                    return new FloatLiteral(PrimitiveType.F64,floatCtx.GetText());
 
-                return _errorHandler.ErrorInExpression(CctsError.LITERAL_ERROR.CompTime(literalCtx, literalTxt));
+                return _errorHandler.ErrorInExpression(CctsError.LITERAL_ERROR,literalCtx, literalTxt);
             }
 
             //Integer
@@ -234,12 +238,12 @@ public class ExpressionFactory {
                     BigInteger? value = IntegerParser.Parse(intCtx.GetText());
                     if (value == null)
                         return _errorHandler.ErrorInExpression(
-                            CctsError.LITERAL_ERROR.CompTime(literalCtx, literalTxt));
+                            CctsError.LITERAL_ERROR,literalCtx, literalTxt);
 
                     return new IntLiteral(new LiteralIntegerType(value.Value));
                 }
                 catch (FormatException) {
-                    return _errorHandler.ErrorInExpression(CctsError.LITERAL_ERROR.CompTime(literalCtx, literalTxt));
+                    return _errorHandler.ErrorInExpression(CctsError.LITERAL_ERROR,literalCtx, literalTxt);
                 }
             }
         }
@@ -249,17 +253,20 @@ public class ExpressionFactory {
         if (literalCtx.charLiteral() != null) {
             try {
                 string val = literalCtx.charLiteral().GetText();
-                return new CharLiteral(PrimitiveType.CH08);
+                return new CharLiteral(PrimitiveType.CH08,literalCtx.charLiteral().GetText());
             }
             catch (FormatException) {
-                return _errorHandler.ErrorInExpression(CctsError.LITERAL_ERROR.CompTime(literalCtx, literalTxt));
+                return _errorHandler.ErrorInExpression(CctsError.LITERAL_ERROR,literalCtx, literalTxt);
             }
         }
 
         if (literalCtx.boolLiteral() != null) {
-            return new BoolLiteral();
+            return new BoolLiteral(literalCtx.boolLiteral().GetText());
         }
 
+        if (literalCtx.strLiteral() != null) {
+            return new StringLiteral(literalCtx.strLiteral().GetText());
+        }
         //if (literalCtx.varRef() != null) { }
 
         return new Expression.Error();

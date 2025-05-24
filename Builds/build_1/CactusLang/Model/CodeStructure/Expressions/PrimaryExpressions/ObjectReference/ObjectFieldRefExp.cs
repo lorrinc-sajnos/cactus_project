@@ -1,7 +1,7 @@
 using CactusLang.Model.Operators.ObjectRefference;
 using CactusLang.Model.Types;
 
-namespace CactusLang.Model.CodeStructure.Expressions.PrimaryExpressions;
+namespace CactusLang.Model.CodeStructure.Expressions.PrimaryExpressions.ObjectReference;
 
 public class ObjectFieldRefExp : PrimaryExpression {
     private PrimaryExpression _object;
