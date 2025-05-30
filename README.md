@@ -1,2 +1,3 @@
 # Cactus Porject
-Itt található majd az okosság amit összeszedek az Önlab témámhoz
+Ez egy C-szerű, low-level nyelv, amit az önálló laboratóriumomra készítettem a BME-AUT tanszékének.
+Ottó Lőrinc MINDEN JOG FENNTARTVA :D
