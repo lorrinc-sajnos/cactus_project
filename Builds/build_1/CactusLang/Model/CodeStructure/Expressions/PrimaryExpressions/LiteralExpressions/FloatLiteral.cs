@@ -2,14 +2,14 @@ using CactusLang.Model.Types;
 
 namespace CactusLang.Model.CodeStructure.Expressions.PrimaryExpressions.LiteralExpressions;
 
-public class FloatLiteral :  LiteralExpression {
-    PrimitiveType  _type;   //TODO float literal!
+public class FloatLiteral : LiteralExpression {
+    PrimitiveType _type; //TODO float literal!
     public PrimitiveType Type => _type;
-    public string FloatValue {get; private set;}
+    public string FloatValue { get; private set; }
     public override string Value => FloatValue;
 
-    public FloatLiteral(PrimitiveType type, string value) {
-        FloatValue  = value;
+    public FloatLiteral(PrimitiveType type, string? sign, string value) {
+        FloatValue = sign + value;
         _type = type;
     }
 

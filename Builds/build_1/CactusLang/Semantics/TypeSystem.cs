@@ -1,4 +1,5 @@
 using CactusLang.Model.CodeStructure;
+using CactusLang.Model.CodeStructure.Structs;
 using CactusLang.Model.Errors;
 using CactusLang.Model.Types;
 using CactusLang.Semantics.Errors;

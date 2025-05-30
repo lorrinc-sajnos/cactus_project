@@ -4,13 +4,13 @@ using CactusLang.Model.Types;
 
 namespace CactusLang.Model.CodeStructure.Statements;
 
-public class ReturnStatement : Statement {
+public class FreeStatement : Statement {
     private Expression _expression;
     
     public Expression Expression => _expression;
     public BaseType ReturnType => Expression.GetResultType();
 
-    public ReturnStatement(CodeBlock codeBlock, Expression expression) : base(codeBlock) {
+    public FreeStatement(CodeBlock codeBlock, Expression expression) : base(codeBlock) {
         _expression = expression;
     }
 }

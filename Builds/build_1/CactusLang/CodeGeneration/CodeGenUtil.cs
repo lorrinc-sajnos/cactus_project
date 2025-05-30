@@ -1,7 +1,9 @@
 using CactusLang.Model;
 using CactusLang.Model.CodeStructure;
 using CactusLang.Model.CodeStructure.File;
+using CactusLang.Model.CodeStructure.Statements;
 using CactusLang.Model.CodeStructure.Structs;
+using CactusLang.Util;
 
 namespace CactusLang.CodeGeneration;
 
@@ -100,6 +102,24 @@ public static class CodeGenUtil {
 
         header += ")";
         return header;
+    }
+
+    public static string GetVarDclString(VarDclStatement varDclStatement) {
+        string result = "";
+        result += $"{varDclStatement.VarType.Name} ";
+        var dclBodies = varDclStatement.GetBodies();
+        UtilFunc.SeparatedForEach(dclBodies,
+            (body) => {
+                result += body.Variable.Name;
+                if (body.HasValue) {
+                    string varVal = ExpressionCodeFactory.Manufacture(body.Value!);
+                    result += $" = {varVal}";
+                }
+            },
+            () => result += CodeGenUtil.PARAM_SEP
+        );
+        result += ";";
+        return result;
     }
 
     #endregion

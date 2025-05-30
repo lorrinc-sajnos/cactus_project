@@ -19,8 +19,10 @@ public class LiteralIntegerType : BaseType {
     public override bool IsUnsigned => Value < 0;
 
 
-    public LiteralIntegerType(BigInteger value)  {
+    public LiteralIntegerType(BigInteger value, string? sign)  {
         Value = value;
+        if (sign != null && sign.Equals("-"))
+            value *= -1;
         _canBeUsedAs = IntegerParser.GetLiteralTypes(value);
     }
 

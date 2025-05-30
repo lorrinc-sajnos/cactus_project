@@ -5,6 +5,7 @@ using CactusLang.Model.CodeStructure.Expressions;
 using CactusLang.Model.CodeStructure.Expressions.PrimaryExpressions;
 using CactusLang.Model.CodeStructure.Expressions.PrimaryExpressions.LiteralExpressions;
 using CactusLang.Model.CodeStructure.Expressions.PrimaryExpressions.ObjectReference;
+using CactusLang.Model.CodeStructure.Structs;
 using CactusLang.Model.Errors;
 using CactusLang.Model.Operators;
 using CactusLang.Model.Operators.ObjectRefference;
@@ -87,7 +88,18 @@ public class ExpressionFactory {
     private Expression GetPrimaryExp(GP.PrimaryExpContext ctx) {
         if (ctx.primaryExpVal() != null) {
             var valType = GetPrimaryExpVal(ctx.primaryExpVal());
-            //TODO Check unary operators...
+            if (valType is not PrimaryExpression primExp)
+                return valType;
+
+            if (ctx.opLeftUn() != null) {
+                UnaryOp op = UnaryOp.GetLeftById(ctx.opLeftUn().GetText());
+                return new UnOpPrimaryExpression(primExp, op);
+            }
+
+            if (ctx.opRightUn() != null) {
+                UnaryOp op = UnaryOp.GetRightById(ctx.opRightUn().GetText());
+                return new UnOpPrimaryExpression(primExp, op);
+            }
 
             return valType;
         }
@@ -100,8 +112,9 @@ public class ExpressionFactory {
             return GetPrimaryExp_ObjFieldRef(ctx);
         }
 
-        //if (ctx.alloc() != null)
-        //    return GetAlloc(ctx.alloc());
+        if (ctx.alloc() != null) {
+            return GetPrimaryExp_GetAlloc(ctx.alloc());
+        }
 
         return new Expression.Error();
     }
@@ -116,7 +129,7 @@ public class ExpressionFactory {
 
         FileStruct? refObj = GetRefObj(expression.GetResultType(), refOp);
         if (refObj == null)
-            return _errorHandler.ErrorInExpression(CctsError.BAD_OBJ_REF,ctx, ctx.GetText());
+            return _errorHandler.ErrorInExpression(CctsError.BAD_OBJ_REF, ctx, ctx.GetText());
 
         var funcParams = GetFuncParams(funcCallCtx.funcCall());
         FuncId instFuncId = GetFuncId(funcCallCtx.funcCall().funcRef().GetText(), funcParams);
@@ -124,7 +137,7 @@ public class ExpressionFactory {
         var structFunc = refObj.Functions.GetMatchingFunction(instFuncId);
 
         if (structFunc == null) {
-            return _errorHandler.ErrorInExpression(CctsError.ID_NOT_FOUND,funcCallCtx.funcCall(),
+            return _errorHandler.ErrorInExpression(CctsError.ID_NOT_FOUND, funcCallCtx.funcCall(),
                 funcCallCtx.funcCall().GetText());
         }
 
@@ -144,19 +157,23 @@ public class ExpressionFactory {
 
         FileStruct? refObj = GetRefObj(expression.GetResultType(), refOp);
         if (refObj == null)
-            return _errorHandler.ErrorInExpression(CctsError.BAD_OBJ_REF,ctx, ctx.GetText());
+            return _errorHandler.ErrorInExpression(CctsError.BAD_OBJ_REF, ctx, ctx.GetText());
 
 
         string fieldName = fieldRefCtx.fieldRef().GetText();
         StructField? field = refObj.Fields.GetField(fieldName);
 
         if (field == null) {
-            return _errorHandler.ErrorInExpression(CctsError.ID_NOT_FOUND,fieldRefCtx.fieldRef(), fieldName);
+            return _errorHandler.ErrorInExpression(CctsError.ID_NOT_FOUND, fieldRefCtx.fieldRef(), fieldName);
         }
 
         return new ObjectFieldRefExp(primaryExpr, new ObjectFieldRef(refObj, field));
     }
 
+    private Expression GetPrimaryExp_GetAlloc(GP.AllocContext ctx) {
+        BaseType type = _typeSystem.Get(ctx.type());
+        return new Alloc(type);
+    }
 
     #region PrimaryExpVal
 
@@ -189,7 +206,7 @@ public class ExpressionFactory {
 
         ModelFunction? func = _scope.GetMatchingFunction(funcId);
         if (func == null) {
-            return _errorHandler.ErrorInExpression(CctsError.ID_NOT_FOUND,ctx, funcId.ToString());
+            return _errorHandler.ErrorInExpression(CctsError.ID_NOT_FOUND, ctx, funcId.ToString());
         }
 
         return new FuncCallExp(func, paramEpxs);
@@ -217,18 +234,22 @@ public class ExpressionFactory {
         //TODO null
 
         if (literalCtx.numLiteral() != null) {
+            string? sign = null;
+            if (literalCtx.numLiteral().numSign() != null)
+                sign = literalCtx.numLiteral().numSign().GetText();
+            
             //Float conversion
             var floatCtx = literalCtx.numLiteral().floatLiteral();
             if (floatCtx != null) {
                 var result = FloatParser.Parse(floatCtx.GetText());
 
                 if (result.Type == FloatType.SINGLE)
-                    return new FloatLiteral(PrimitiveType.F32,floatCtx.GetText());
+                    return new FloatLiteral(PrimitiveType.F32, sign, floatCtx.GetText());
 
                 if (result.Type == FloatType.DOUBLE)
-                    return new FloatLiteral(PrimitiveType.F64,floatCtx.GetText());
+                    return new FloatLiteral(PrimitiveType.F64, sign, floatCtx.GetText());
 
-                return _errorHandler.ErrorInExpression(CctsError.LITERAL_ERROR,literalCtx, literalTxt);
+                return _errorHandler.ErrorInExpression(CctsError.LITERAL_ERROR, literalCtx, literalTxt);
             }
 
             //Integer
@@ -238,25 +259,23 @@ public class ExpressionFactory {
                     BigInteger? value = IntegerParser.Parse(intCtx.GetText());
                     if (value == null)
                         return _errorHandler.ErrorInExpression(
-                            CctsError.LITERAL_ERROR,literalCtx, literalTxt);
+                            CctsError.LITERAL_ERROR, literalCtx, literalTxt);
 
-                    return new IntLiteral(new LiteralIntegerType(value.Value));
+                    return new IntLiteral(new LiteralIntegerType(value.Value, sign));
                 }
                 catch (FormatException) {
-                    return _errorHandler.ErrorInExpression(CctsError.LITERAL_ERROR,literalCtx, literalTxt);
+                    return _errorHandler.ErrorInExpression(CctsError.LITERAL_ERROR, literalCtx, literalTxt);
                 }
             }
         }
 
-        //TODO str
-
         if (literalCtx.charLiteral() != null) {
             try {
                 string val = literalCtx.charLiteral().GetText();
-                return new CharLiteral(PrimitiveType.CH08,literalCtx.charLiteral().GetText());
+                return new CharLiteral(PrimitiveType.CH08, literalCtx.charLiteral().GetText());
             }
             catch (FormatException) {
-                return _errorHandler.ErrorInExpression(CctsError.LITERAL_ERROR,literalCtx, literalTxt);
+                return _errorHandler.ErrorInExpression(CctsError.LITERAL_ERROR, literalCtx, literalTxt);
             }
         }
 

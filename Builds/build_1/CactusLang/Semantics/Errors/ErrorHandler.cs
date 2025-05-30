@@ -83,7 +83,7 @@ public class ErrorHandler {
 
     public void PrintErrors() {
         if (_errors.Count == 0) {
-            Console.WriteLine("No errors found :)");
+            Console.WriteLine("-\tNo errors found :)");
             return;
         }
 

@@ -44,6 +44,12 @@ public interface IGrammarVisitor<Result> : IParseTreeVisitor<Result> {
 	/// <return>The visitor result.</return>
 	Result VisitTags([NotNull] GrammarParser.TagsContext context);
 	/// <summary>
+	/// Visit a parse tree produced by <see cref="GrammarParser.tag"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	/// <return>The visitor result.</return>
+	Result VisitTag([NotNull] GrammarParser.TagContext context);
+	/// <summary>
 	/// Visit a parse tree produced by <see cref="GrammarParser.fileStatement"/>.
 	/// </summary>
 	/// <param name="context">The parse tree.</param>

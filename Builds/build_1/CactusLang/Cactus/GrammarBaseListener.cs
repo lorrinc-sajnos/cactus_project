@@ -60,6 +60,18 @@ public partial class GrammarBaseListener : IGrammarListener {
 	/// <param name="context">The parse tree.</param>
 	public virtual void ExitTags([NotNull] GrammarParser.TagsContext context) { }
 	/// <summary>
+	/// Enter a parse tree produced by <see cref="GrammarParser.tag"/>.
+	/// <para>The default implementation does nothing.</para>
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	public virtual void EnterTag([NotNull] GrammarParser.TagContext context) { }
+	/// <summary>
+	/// Exit a parse tree produced by <see cref="GrammarParser.tag"/>.
+	/// <para>The default implementation does nothing.</para>
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	public virtual void ExitTag([NotNull] GrammarParser.TagContext context) { }
+	/// <summary>
 	/// Enter a parse tree produced by <see cref="GrammarParser.fileStatement"/>.
 	/// <para>The default implementation does nothing.</para>
 	/// </summary>

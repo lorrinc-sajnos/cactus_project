@@ -63,7 +63,15 @@ public class CctsError {
     public static readonly CctsError RVALUE_ASG = new(9, "Cannot assign to rvalue #{0}#",
         "Cannot assign value into #{0}#, as it is an rvalue, thus not acessable.");
 
+    public static readonly CctsError FREE_ERROR =
+        new(9, "Cannot free {0}", "Cannot free {0} as it is not a pointer.");
 
+    public static readonly CctsError CONDITION_ERROR =
+        new(10, "Condition type is {0}, not #bool#", "Condition type shoud be #bool#, instead of {0}");
+    
     public static readonly CctsError SYNTAX_WRONG_TOKEN =
         new(9001, "Syntax error: Unexpected token \"{0}\"", "Token \"{0}\" was unexpected.");
+    
+    
+    
 }

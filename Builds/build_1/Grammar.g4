@@ -4,10 +4,11 @@ grammar Grammar;
 codefile: (fileStatement)* EOF;
 
 //Parser Rules
-tags: TAG+;
+tags: tag+;
+tag: TAG;
 
 fileStatement
-    : (preprocessor_stm)
+    : (tags EOS)
 	//| tags EOS
 	| (fileVarDcl EOS)
 	| (funcDcl)
@@ -78,17 +79,16 @@ classBody: (funcDcl | (fieldDcl EOS))*;
 codeBody: BODY_OPN (statement)* BODY_CLS;
 
 statement
-    : varDcl EOS
+    : tags?
+    (varDcl EOS
     | expressionStatement EOS
-    | ifStatement
     | forLoop
-    | whileLoop
     | breakStatement EOS
     | continueStatement EOS
     | returnStatement EOS
     | free EOS
-    | tags
-    ;
+    | tags 
+    );
 
 varDcl: tags? type varDclBody (COMMA varDclBody)*;
 
@@ -192,8 +192,9 @@ fieldRef: varRef;
 
 parenthsExp: PARN_OPN expression PARN_CLS;
 
-alloc: KYW_ALLOC (expression | type);
-free: KYW_FREE varRef;
+alloc: KYW_ALLOC type;
+//alloc: KYW_ALLOC (expression | type);
+free: KYW_FREE expression;
 explicitCast: PARN_OPN type PARN_CLS;
 
 //Function call
@@ -270,21 +271,6 @@ ppc__C_Func_Map:  PPC_C_LAMDA ppc__C_Func;
 ppc__varRef: PPC_ID;
 ppc__funcRef: (PPC_ID | PPC_DEEP_ID);
 ppc__funcCall: ppc__funcRef PARN_OPN funcParamVals? PARN_CLS;
-
-/*ppc__Token: (
-    ID
-    | OP_ACC
-    | OP_REF
-    | OP_B_AND
-    | OP_GRT
-    | OP_LST
-    | PARN_OPN
-    | PARN_CLS
-    | SQPN_OPN
-    | SQPN_CLS
-    | STRING
-);*/
-
 
 //ppc__Expression: ppc__Token{1,8};
 
@@ -408,8 +394,6 @@ BIN_STR: BIN_PRFX [01]+;
 fragment FLOAT_TYPE: 'f' | 'F' | 'd' | 'D';
 FLOAT_STR: INT_STR? '.' INT_STR FLOAT_TYPE?;
 
-//ESC_CHAR: '\'';
-//ESC_STR: '\'';
 CHAR: '\''(~['\\\r\n] | EscapeSequence)'\'';
 //String
 // Ellesve innen: https://github.com/antlr/grammars-v4/blob/master/c/C.g4

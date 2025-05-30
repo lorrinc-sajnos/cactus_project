@@ -1,3 +1,4 @@
+using CactusLang.Model.CodeStructure.CodeBlocks;
 using CactusLang.Model.CodeStructure.Expressions;
 using CactusLang.Model.Symbols;
 using CactusLang.Model.Types;
@@ -5,6 +6,7 @@ using CactusLang.Model.Types;
 namespace CactusLang.Model.CodeStructure.Statements;
 
 public class VarDclStatement : Statement {
+    public VarDclStatement(CodeBlock codeBlock) : base(codeBlock) { }
     public BaseType VarType => _variables.First().Variable.Type;
 
     private List<Body> _variables = new();

@@ -2,6 +2,7 @@ using CactusLang.Model.CodeStructure.Expressions;
 using CactusLang.Model.CodeStructure.Expressions.PrimaryExpressions;
 using CactusLang.Model.CodeStructure.Expressions.PrimaryExpressions.LiteralExpressions;
 using CactusLang.Model.CodeStructure.Expressions.PrimaryExpressions.ObjectReference;
+using CactusLang.Model.Operators;
 using CactusLang.Model.Visitors;
 using CactusLang.Util;
 
@@ -9,14 +10,14 @@ namespace CactusLang.CodeGeneration;
 
 public class ExpressionCodeFactory : CodeModelVisitor<string> {
     private Expression _expression;
-    private ModelGenerator.State _modelState;
+    private CodeGenerator.State _modelState;
 
-    public static string Manufacture(Expression expression, ModelGenerator.State state) {
+    public static string Manufacture(Expression expression, CodeGenerator.State state = new()) {
         ExpressionCodeFactory factory = new(expression, state);
         return factory.Start();
     }
 
-    public ExpressionCodeFactory(Expression expression, ModelGenerator.State state) : base("", null) {
+    public ExpressionCodeFactory(Expression expression, CodeGenerator.State state) : base("", null) {
         _modelState = state;
         _expression = expression;
     }
@@ -47,7 +48,7 @@ public class ExpressionCodeFactory : CodeModelVisitor<string> {
     }
 
 
-    #region Primaray exception
+    #region Primaray expression
 
     protected override string VisitVarRefExpression(VarRef varRef) => varRef.VarName;
 
@@ -90,6 +91,14 @@ public class ExpressionCodeFactory : CodeModelVisitor<string> {
         }
 
         return $"{funcName}({structPtr}{otherParamStr})";
+    }
+
+    protected override string VisitAlloc(Alloc alloc) {
+        return $"malloc(sizeof({alloc.AllocType.Name}))";
+    }
+
+    protected override string VisitUnaryOperator(UnaryOp op) {
+        return op.GetId();
     }
 
     #endregion

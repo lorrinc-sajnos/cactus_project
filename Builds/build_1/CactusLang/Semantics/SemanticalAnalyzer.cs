@@ -3,6 +3,7 @@ using Antlr4.Runtime;
 using CactusLang.Model;
 using CactusLang.Model.Codefiles;
 using CactusLang.Model.CodeStructure;
+using CactusLang.Model.CodeStructure.CodeBlocks;
 using CactusLang.Model.CodeStructure.File;
 using CactusLang.Model.CodeStructure.Statements;
 using CactusLang.Model.CodeStructure.Structs;
@@ -23,10 +24,12 @@ public class SemanticAnalyzer : GrammarBaseVisitor<StatusCode> {
     private readonly FileScope _fileScope;
     private readonly ErrorHandler _errorHandler;
     private readonly CodeFile _codeFile;
+    private readonly TagFactory _tagFactory;
     public CodeFile CodeFile => _codeFile;
     public ErrorHandler ErrorHandler => _errorHandler;
 
     private Scope CurrentScope => _fileScope.CurrentScope;
+
     private CodeBlock _currentBlock;
 
 
@@ -34,16 +37,19 @@ public class SemanticAnalyzer : GrammarBaseVisitor<StatusCode> {
         //Antlr
         var inputStream = new AntlrInputStream(sourceFile.Code);
         var lexer = new GrammarLexer(inputStream);
+        lexer.RemoveErrorListeners();
         var tokenStream = new CommonTokenStream(lexer);
         _parser = new GrammarParser(tokenStream);
         _codeFile = new CodeFile(sourceFile);
 
         _errorHandler = new ErrorHandler(sourceFile.Path);
-
+        //Remove error listeners so it doesn't print it to the log
+        _parser.RemoveErrorListeners();
         _parser.AddErrorListener(_errorHandler.ErrorListener);
 
         _fileScope = new FileScope(_codeFile, _errorHandler);
         _typeSystem = new TypeSystem(_errorHandler);
+        _tagFactory = new();
     }
 
     public void Analyze() {
@@ -60,8 +66,6 @@ public class SemanticAnalyzer : GrammarBaseVisitor<StatusCode> {
         //Debug.LogLine("Beginning analization.");
         AnalyzeCodeFile(ctx);
     }
-
-    private void AddParserErrors() { }
 
     #region Registering
 
@@ -111,14 +115,17 @@ public class SemanticAnalyzer : GrammarBaseVisitor<StatusCode> {
     private void RegisterFileScope(GP.CodefileContext ctx) {
         var globStatement = ctx.fileStatement();
 
-        foreach (var statement in globStatement) {
-            if (statement.funcDcl() != null) {
-                var funcDcl = statement.funcDcl();
+        foreach (var fileStatement in globStatement) {
+            if (fileStatement.funcDcl() != null) {
+                var funcDcl = fileStatement.funcDcl();
                 RegisterFileFuncDcl(funcDcl);
             }
-            else if (statement.fileVarDcl() != null) {
-                var globVarCtx = statement.fileVarDcl();
+            else if (fileStatement.fileVarDcl() != null) {
+                var globVarCtx = fileStatement.fileVarDcl();
                 RegisterFileVarDcl(globVarCtx);
+            }
+            else if (fileStatement.tags() != null) {
+                _codeFile.AddTags(_tagFactory.CreateTags(fileStatement.tags()));
             }
         }
     }
@@ -140,6 +147,9 @@ public class SemanticAnalyzer : GrammarBaseVisitor<StatusCode> {
         if (result == false) {
             _errorHandler.ErrorInExpression(CctsError.OVERLOAD_DOESNT_MATCH_RET_TYPE, ctx, header.funcName());
         }
+
+        if (header.tags() != null)
+            fileFunc.TagContainer.AddTags(_tagFactory.CreateTags(header.tags()));
 
         Debug.LogLine($"Func {funcSymb.Name} declared.");
     }
@@ -175,7 +185,7 @@ public class SemanticAnalyzer : GrammarBaseVisitor<StatusCode> {
             funcSymb.AddParameter(new VariableSymbol(pType, pName));
         }
 
-        StructFunction structFunc = new StructFunction(funcSymb, fileStruct);
+        StructFunction structFunc = new StructFunction(_codeFile, funcSymb, fileStruct);
         fileStruct.Functions.AddFunction(structFunc);
     }
 
@@ -226,25 +236,12 @@ public class SemanticAnalyzer : GrammarBaseVisitor<StatusCode> {
     }
 
     private void ProcessFunctionBody(GP.FuncDclContext ctx) {
-        //If function has C code, trust that it will work
-        if (ctx.ppc__C_Code_Body() != null || ctx.ppc__C_Func_Map() != null) {
-            return;
-        }
-
-        if (ctx.funcLamdBody() != null) {
-            //TODO...
-            return;
-        }
-        //Handle the most common case:
-
-        string debugtxt = ctx.GetText();
-
         ModelFunction? func =
             CurrentScope.GetMatchingFunction(
                 SemanticUtil.GetIdFromDclCtx(ctx.funcDclHeader(), _typeSystem)
             ); //Should be always non-null
 
-        var codeBody = ctx.codeBody();
+        _currentBlock = func.CodeBody;
 
         Debug.LogLine($"FUNC {ctx.funcDclHeader().GetText()} ENTERED");
         //_fileScope.StepIn();
@@ -253,8 +250,35 @@ public class SemanticAnalyzer : GrammarBaseVisitor<StatusCode> {
             CurrentScope.AddVariable(param); //In theory, scope is empty at this point, thus an error cannot occur.
         }
 
+        //If function has C code, trust that it will work
+        if (ctx.ppc__C_Code_Body() != null) {
+            _currentBlock.AddStatement(new RawCCodeStatement(_currentBlock, ctx.ppc__C_Code_Body().GetText(), true));
+            return;
+        }
 
-        _currentBlock = func.CodeBody;
+        if (ctx.ppc__C_Func_Map() != null) {
+            _currentBlock.AddStatement(new RawCCodeStatement(_currentBlock,
+                ctx.ppc__C_Func_Map().ppc__C_Func().GetText(), false));
+            return;
+        }
+
+        if (ctx.funcLamdBody() != null) {
+            var factory = CreateFactory(ctx.funcLamdBody().expression());
+            var lamdbaExpr = factory.EvaluateExpression();
+
+            if (func.ReturnType.Equals(PrimitiveType.VOID)) {
+                _currentBlock.AddStatement(new ExpressionStatement(_currentBlock, lamdbaExpr));
+            }
+            else {
+                _currentBlock.AddStatement(new ReturnStatement(_currentBlock, lamdbaExpr));
+            }
+
+            return;
+        }
+
+        //Handle the most common case:
+        var codeBody = ctx.codeBody();
+
         VisitCodeBody(codeBody);
 
         //_fileScope.StepOut();
@@ -263,30 +287,8 @@ public class SemanticAnalyzer : GrammarBaseVisitor<StatusCode> {
         Debug.LogLine($"FUNC {ctx.funcDclHeader().GetText()} EXITED\n");
     }
 
-
-    public override StatusCode VisitCodeBody(GrammarParser.CodeBodyContext context) {
-        _fileScope.StepIn();
-        Debug.LogLine("Entering code body.");
-        var result = base.VisitCodeBody(context);
-        _fileScope.StepOut();
-        Debug.LogLine("Exiting code body.");
-        return result;
-    }
-
-    #region Statement Handling
-
-    private ExpressionFactory CreateFactory(GP.ExpressionContext node) =>
-        new(_errorHandler, _typeSystem, _fileScope.CurrentScope, node);
-
-
-    public override StatusCode VisitStatement(GP.StatementContext ctx) {
-        //Debug.LogLine("statement:"+ctx.GetText());
-        return base.VisitStatement(ctx);
-    }
-
-    public override StatusCode VisitVarDcl(GrammarParser.VarDclContext ctx) {
+    private void FillVarDclStatement(GP.VarDclContext ctx, VarDclStatement varDclStatement) {
         BaseType dclType = _typeSystem.Get(ctx.type());
-        VarDclStatement varDclStatement = new();
 
         foreach (var dclBody in ctx.varDclBody()) {
             var varSymbol = new VariableSymbol(dclType, dclBody.varName().GetText());
@@ -312,6 +314,32 @@ public class SemanticAnalyzer : GrammarBaseVisitor<StatusCode> {
 
             _fileScope.CurrentScope.AddVariable(varSymbol);
         }
+    }
+
+    public override StatusCode VisitCodeBody(GrammarParser.CodeBodyContext context) {
+        _fileScope.StepIn();
+        Debug.LogLine("Entering code body.");
+        var result = base.VisitCodeBody(context);
+        _fileScope.StepOut();
+        Debug.LogLine("Exiting code body.");
+        return result;
+    }
+
+    #region Statement Handling
+
+    private ExpressionFactory CreateFactory(GP.ExpressionContext node) =>
+        new(_errorHandler, _typeSystem, _fileScope.CurrentScope, node);
+
+
+    public override StatusCode VisitStatement(GP.StatementContext ctx) {
+        //Debug.LogLine("statement:"+ctx.GetText());
+        return base.VisitStatement(ctx);
+    }
+
+    public override StatusCode VisitVarDcl(GrammarParser.VarDclContext ctx) {
+        VarDclStatement varDclStatement = new(_currentBlock);
+
+        FillVarDclStatement(ctx, varDclStatement);
 
         _currentBlock.AddStatement(varDclStatement);
         return base.VisitVarDcl(ctx);
@@ -324,8 +352,19 @@ public class SemanticAnalyzer : GrammarBaseVisitor<StatusCode> {
 
         var res = base.VisitExpressionStatement(ctx);
 
-        _currentBlock.AddStatement(new ExpressionStatement(expression));
+        _currentBlock.AddStatement(new ExpressionStatement(_currentBlock, expression));
         return res;
+    }
+
+    public override StatusCode VisitFree(GrammarParser.FreeContext ctx) {
+        var factory = CreateFactory(ctx.expression());
+        var expression = factory.EvaluateExpression();
+        if (expression.GetResultType() is not PointerType) {
+            _errorHandler.ErrorInExpression(CctsError.FREE_ERROR, ctx, ctx.expression().GetText());
+        }
+
+        _currentBlock.AddStatement(new FreeStatement(_currentBlock, expression));
+        return base.VisitFree(ctx);
     }
 
 
@@ -334,9 +373,36 @@ public class SemanticAnalyzer : GrammarBaseVisitor<StatusCode> {
         var expression = factory.EvaluateExpression();
 
 
-        _currentBlock.AddStatement(new ReturnStatement(expression));
+        _currentBlock.AddStatement(new ReturnStatement(_currentBlock, expression));
 
         return base.VisitReturnStatement(ctx);
+    }
+
+    public override StatusCode VisitForLoop(GrammarParser.ForLoopContext ctx) {
+        VarDclStatement loopDcl = new(_currentBlock);
+        _fileScope.StepIn();
+        FillVarDclStatement(ctx.loopDecl().varDcl(), loopDcl);
+
+        var loopCondfactory = CreateFactory(ctx.loopCond().expression());
+        var loopCond = loopCondfactory.EvaluateExpression();
+        if (loopCond.GetResultType() != PrimitiveType.BOOL) {
+            _errorHandler.ErrorInExpression(CctsError.CONDITION_ERROR, ctx.loopCond(), loopCond.GetResultType());
+        }
+
+        var endExpfactory = CreateFactory(ctx.endExp().expression());
+        var endExp = endExpfactory.EvaluateExpression();
+
+
+        ForLoop forLoop = new(loopDcl, loopCond, endExp, _currentBlock);
+        var storeCurerntBlock = _currentBlock;
+        _currentBlock = forLoop.LoopBody;
+        var result = base.VisitCodeBody(ctx.codeBody());
+
+        _fileScope.StepOut();
+
+        _currentBlock = storeCurerntBlock;
+        _currentBlock.AddStatement(forLoop);
+        return result;
     }
 
     #endregion

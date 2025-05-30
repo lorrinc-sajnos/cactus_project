@@ -51,6 +51,16 @@ public interface IGrammarListener : IParseTreeListener {
 	/// <param name="context">The parse tree.</param>
 	void ExitTags([NotNull] GrammarParser.TagsContext context);
 	/// <summary>
+	/// Enter a parse tree produced by <see cref="GrammarParser.tag"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	void EnterTag([NotNull] GrammarParser.TagContext context);
+	/// <summary>
+	/// Exit a parse tree produced by <see cref="GrammarParser.tag"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	void ExitTag([NotNull] GrammarParser.TagContext context);
+	/// <summary>
 	/// Enter a parse tree produced by <see cref="GrammarParser.fileStatement"/>.
 	/// </summary>
 	/// <param name="context">The parse tree.</param>

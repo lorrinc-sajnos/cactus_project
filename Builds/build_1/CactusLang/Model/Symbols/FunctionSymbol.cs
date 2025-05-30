@@ -1,11 +1,11 @@
 using CactusLang.Model.Types;
 using CactusLang.Semantics.Types;
 using CactusLang.Tags;
+using CactusLang.Tags.StatementTags;
 
 namespace CactusLang.Model.Symbols;
 
 public class FunctionSymbol  {
-    public TagContainer Tags { get; private set; }
     public string Name { get; private set; }
     
     public FuncId Id { get; private set; }

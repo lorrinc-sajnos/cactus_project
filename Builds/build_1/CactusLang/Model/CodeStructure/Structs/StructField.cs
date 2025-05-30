@@ -1,4 +1,5 @@
 using CactusLang.Model.CodeStructure.File;
+using CactusLang.Model.CodeStructure.Structs;
 using CactusLang.Model.Symbols;
 
 namespace CactusLang.Model.CodeStructure;

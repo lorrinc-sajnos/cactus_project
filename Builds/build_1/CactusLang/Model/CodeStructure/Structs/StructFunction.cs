@@ -1,3 +1,4 @@
+using CactusLang.Model.CodeStructure.File;
 using CactusLang.Model.Symbols;
 
 namespace CactusLang.Model.CodeStructure.Structs;
@@ -5,7 +6,7 @@ namespace CactusLang.Model.CodeStructure.Structs;
 public class StructFunction : ModelFunction {
     private FileStruct _parent;
 
-    public StructFunction(FunctionSymbol symbol, FileStruct parent) : base(symbol) {
+    public StructFunction(CodeFile file, FunctionSymbol symbol, FileStruct parent) : base(file, symbol) {
         _parent = parent;
     }
 
